@@ -1,0 +1,6 @@
+Revision history for Perl extension MaxMind::DB::Reader::XS.
+
+0.01  Thu Jan 24 16:12:29 2013
+	- original version; created by h2xs 1.23 with options
+		-b 5.12.0 -A -n MaxMind::DB::Reader::XS
+
