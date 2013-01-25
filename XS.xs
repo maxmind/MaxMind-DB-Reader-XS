@@ -22,3 +22,13 @@ lib_version(CLASS)
     OUTPUT:
         RETVAL
 
+MMDB_s *
+open(CLASS,filename,flags = MMDB_MODE_STANDARD)
+        char * CLASS
+        char * filename
+        int flags
+    CODE:
+        RETVAL = ( filename != NULL ) ? MMDB_open(filename,flags) : NULL;
+    OUTPUT:
+        RETVAL
+
