@@ -14,3 +14,11 @@ extern "C" {
 
 MODULE = MaxMind::DB::Reader::XS		PACKAGE = MaxMind::DB::Reader::XS		
 
+const char *
+lib_version(CLASS)
+        char * CLASS
+    CODE:
+        RETVAL = MMDB_lib_version();
+    OUTPUT:
+        RETVAL
+
