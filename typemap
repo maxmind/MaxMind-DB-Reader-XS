@@ -2,8 +2,7 @@ TYPEMAP
 char *          O_CHAR
 const char *    T_PV
 MMDB_s *        O_OBJECT
-MMDB_return_s * O_OBJECT
-doubl           T_DOUBLE
+double          T_DOUBLE
 
 INPUT
 O_OBJECT
