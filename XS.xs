@@ -94,7 +94,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
     return sv;
 }
 
-MODULE = MaxMind::DB::Reader::XS		PACKAGE = MaxMind::DB::Reader::XS		
+MODULE = MaxMind::DB::Reader::XS                PACKAGE = MaxMind::DB::Reader::XS                
 
 const char *
 lib_version(CLASS)
@@ -108,9 +108,70 @@ MMDB_s *
 open(CLASS,filename,flags = MMDB_MODE_STANDARD)
         char * CLASS
         char * filename
-        int flags
+        U32 flags
+    PREINIT:
+        MMDB_s * mmdb = NULL;
     CODE:
-        RETVAL = ( filename != NULL ) ? MMDB_open(filename,flags) : NULL;
+        if ( filename == NULL )
+            croak("MaxMind::DB::Reader::XS filename missing\n");
+        RETVAL = mmdb = MMDB_open(filename, MMDB_MODE_MEMORY_CACHE);
+        if ( mmdb == NULL )
+            croak("Can't open database %s\n", filename );
     OUTPUT:
         RETVAL
+
+
+void
+DESTROY(mmdb)
+        MMDB_s * mmdb
+    CODE:
+        MMDB_close(mmdb);
+
+
+void
+metadata(mmdb)
+        MMDB_s * mmdb
+    PREINIT:
+        SV * sv;
+        int err;
+    PPCODE:
+        MMDB_decode_all_s *decode_all = calloc(1, sizeof(MMDB_decode_all_s));
+        err = MMDB_get_tree(&mmdb->meta, &decode_all);
+        if ( err != MMDB_SUCCESS ) {
+            croak( "MaxMind::DB::Reader::XS Err %d", err );
+        }
+        sv = mksv(&decode_all);
+        XPUSHs(sv_2mortal(sv));
+
+void
+lookup_by_ip(mmdb, ipstr)
+        MMDB_s * mmdb
+        char * ipstr
+    PREINIT:
+        struct in_addr ip;
+        int err;
+        uint32_t ipnum;
+        I32 gV = GIMME_V;
+        MMDB_root_entry_s root;// = {.entry.mmdb = mmdb };
+//    MMDB_root_entry_s root = {.entry.mmdb = mmdb };
+    PPCODE:
+        root.entry.mmdb=mmdb;
+        fprintf(stderr, "XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
+        if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
+            croak( "MaxMind::DB::Reader::XS Invalid IP Address" );
+        ipnum = htonl(ip.s_addr);
+        err = MMDB_lookup_by_ipnum( ipnum , &root );
+        if ( err != MMDB_SUCCESS ) {
+            croak( "MaxMind::DB::Reader::XS lookup Err %d", err );
+        }
+#if defined BROKEN_SEARCHTREE
+        root.entry.offset -= mmdb->node_count;
+#endif
+        MMDB_decode_all_s *decode_all = calloc(1, sizeof(MMDB_decode_all_s));
+        err = MMDB_get_tree(&root.entry, &decode_all);
+        if ( err != MMDB_SUCCESS ) {
+            croak( "MaxMind::DB::Reader::XS Err %d", err );
+        }
+        SV * sv = mksv(&decode_all);
+        XPUSHs(sv_2mortal(sv));
 
