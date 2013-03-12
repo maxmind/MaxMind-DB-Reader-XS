@@ -164,9 +164,6 @@ lookup_by_ip(mmdb, ipstr)
         if ( err != MMDB_SUCCESS ) {
             croak( "MaxMind::DB::Reader::XS lookup Err %d", err );
         }
-#if defined BROKEN_SEARCHTREE
-        root.entry.offset -= mmdb->node_count;
-#endif
         MMDB_decode_all_s *decode_all = calloc(1, sizeof(MMDB_decode_all_s));
         err = MMDB_get_tree(&root.entry, &decode_all);
         if ( err != MMDB_SUCCESS ) {
