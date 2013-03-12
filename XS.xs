@@ -78,7 +78,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
         sv = newSVpvn((const char *)(*current)->decode.data.c8, 8);
         break;
     case MMDB_DTYPE_UINT128:
-        sv = newSVuv((*current)->decode.data.uinteger);
+        //sv = newSVuv((*current)->decode.data.uinteger);
         sv = newSVpvn((const char *)(*current)->decode.data.c16, 16);
         break;
     case MMDB_DTYPE_INT32:
