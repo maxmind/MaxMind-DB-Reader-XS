@@ -24,7 +24,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
 {
 
     SV *sv;
-    fprintf(stderr, "type %d\n", (*current)->decode.data.type);
+    MMDB_DBG_CARP("type %d\n", (*current)->decode.data.type);
 
     switch ((*current)->decode.data.type) {
     case MMDB_DTYPE_MAP:
@@ -156,7 +156,7 @@ lookup_by_ip(mmdb, ipstr)
 //    MMDB_root_entry_s root = {.entry.mmdb = mmdb };
     PPCODE:
         root.entry.mmdb=mmdb;
-        fprintf(stderr, "XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
+        MMDB_DBG_CARP("XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
         if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
             croak( "MaxMind::DB::Reader::XS Invalid IP Address" );
         ipnum = htonl(ip.s_addr);
