@@ -149,18 +149,25 @@ lookup_by_ip(mmdb, ipstr)
         char * ipstr
     PREINIT:
         struct in_addr ip;
+        struct in6_addr ip6;
         int err;
         uint32_t ipnum;
         I32 gV = GIMME_V;
         MMDB_root_entry_s root;// = {.entry.mmdb = mmdb };
 //    MMDB_root_entry_s root = {.entry.mmdb = mmdb };
     PPCODE:
-        root.entry.mmdb=mmdb;
+        root.entry.mmdb = mmdb;
         MMDB_DBG_CARP("XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
-        if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
-            croak( "MaxMind::DB::Reader::XS Invalid IP Address" );
-        ipnum = htonl(ip.s_addr);
-        err = MMDB_lookup_by_ipnum( ipnum , &root );
+	if ( mmdb->depth == 32 ) {
+            if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
+                croak( "MaxMind::DB::Reader::XS Invalid IPv4 Address" );
+            ipnum = htonl(ip.s_addr);
+            err = MMDB_lookup_by_ipnum( ipnum , &root );
+	} else {
+	    if (ipstr == NULL || 1 != inet_pton(AF_INET6, ipstr, &ip6))
+                croak( "MaxMind::DB::Reader::XS Invalid IPv6 Address" );
+            err = MMDB_lookup_by_ipnum_128( ip6, &root );
+	}
         if ( err != MMDB_SUCCESS ) {
             croak( "MaxMind::DB::Reader::XS lookup Err %d", err );
         }
