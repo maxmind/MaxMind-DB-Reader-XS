@@ -94,6 +94,46 @@ static SV *mksv(MMDB_decode_all_s ** current)
     return sv;
 }
 
+static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
+{
+    SV *sv = &PL_sv_undef;
+    if (root->entry.offset > 0) {
+        MMDB_decode_all_s *decode_all, *tmp;
+        tmp = decode_all = MMDB_alloc_decode_all();
+        int status = MMDB_get_tree(&root->entry, &decode_all);
+        if (status != MMDB_SUCCESS) {
+            croak("MaxMind::DB::Reader::XS Err %d", status);
+        }
+        sv = mksv(&decode_all);
+        sv_2mortal(sv);
+        MMDB_free_decode_all(tmp);
+    }
+    return sv;
+}
+
+static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
+{
+    struct in_addr ip;
+    struct in6_addr ip6;
+    int status;
+    uint32_t ipnum;
+    int depth = root->entry.mmdb->depth;
+    if (depth == 32) {
+        if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET, 0, &ip))
+            croak("MaxMind::DB::Reader::XS Invalid IPv4 Address");
+        ipnum = htonl(ip.s_addr);
+        status = MMDB_lookup_by_ipnum(ipnum, root);
+    } else {
+        if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET6, 0, &ip6))
+            croak("MaxMind::DB::Reader::XS Invalid IPv6 Address");
+        status = MMDB_lookup_by_ipnum_128(ip6, root);
+    }
+    if (status != MMDB_SUCCESS) {
+        croak("MaxMind::DB::Reader::XS lookup Err %d", status);
+    }
+    return status;
+}
+
 MODULE = MaxMind::DB::Reader::XS                PACKAGE = MaxMind::DB::Reader::XS                
 
 const char *
@@ -146,50 +186,43 @@ metadata(mmdb)
         XPUSHs(sv_2mortal(sv));
 
 void
-lookup_by_ip(mmdb, ipstr)
+lookup_by_host(mmdb, ipstr)
         MMDB_s * mmdb
         char * ipstr
     PREINIT:
-        struct in_addr ip;
-        struct in6_addr ip6;
-        int status;
-        uint32_t ipnum;
         I32 gV = GIMME_V;
-        MMDB_root_entry_s root;// = {.entry.mmdb = mmdb };
-//    MMDB_root_entry_s root = {.entry.mmdb = mmdb };
+        MMDB_root_entry_s root;// does not work in XS => root = {.entry.mmdb = mmdb };
     PPCODE:
         root.entry.mmdb = mmdb;
-        MMDB_DBG_CARP("XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
-	if ( mmdb->depth == 32 ) {
-            if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
-                croak( "MaxMind::DB::Reader::XS Invalid IPv4 Address" );
-            ipnum = htonl(ip.s_addr);
-            status = MMDB_lookup_by_ipnum( ipnum , &root );
-	} else {
-	    if (ipstr == NULL || 1 != inet_pton(AF_INET6, ipstr, &ip6))
-                croak( "MaxMind::DB::Reader::XS Invalid IPv6 Address" );
-            status = MMDB_lookup_by_ipnum_128( ip6, &root );
-	}
-        if ( status != MMDB_SUCCESS ) {
-            croak( "MaxMind::DB::Reader::XS lookup Err %d", status );
-        }
-        if ( GIMME_V != G_VOID ) {
-            SV * sv = &PL_sv_undef;
-            if (root.entry.offset > 0) {
-                MMDB_decode_all_s *decode_all, *tmp;
-               tmp = decode_all = MMDB_alloc_decode_all();
-                status = MMDB_get_tree(&root.entry, &decode_all);
-                if ( status != MMDB_SUCCESS ) {
-                    croak( "MaxMind::DB::Reader::XS Err %d", status );
-                }
-                sv = mksv(&decode_all);
-                sv_2mortal(sv);
-               MMDB_free_decode_all(tmp);
-           }
-            XPUSHs( sv);
-           if ( GIMME_V == G_ARRAY ){
+        MMDB_DBG_CARP("XS:lookup_by_host{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
+
+        lookup(&root, ipstr, 0);
+
+       if ( gV != G_VOID ) {
+	   SV * sv = get_mortal_hash_for(&root);
+           XPUSHs(sv);
+           if ( gV == G_ARRAY ){
                XPUSHs(sv_2mortal(newSVuv(root.netmask)));
            }
        }
 
+void
+lookup_by_ip(mmdb, ipstr)
+        MMDB_s * mmdb
+        char * ipstr
+    PREINIT:
+        I32 gV = GIMME_V;
+        MMDB_root_entry_s root;
+    PPCODE:
+        root.entry.mmdb = mmdb;
+        MMDB_DBG_CARP("XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
+
+        lookup(&root, ipstr, AI_NUMERICHOST);
+        if ( gV != G_VOID ) {
+	    SV * sv = get_mortal_hash_for(&root);
+            XPUSHs(sv);
+            if ( gV == G_ARRAY ){
+                XPUSHs(sv_2mortal(newSVuv(root.netmask)));
+            }
+        }
 
