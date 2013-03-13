@@ -37,7 +37,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
                 SV *val = mksv(current);
                 hv_store_ent(hv, key, val, 0);
             }
-            sv = newRV_inc((SV *) hv);
+            sv = newRV_noinc((SV *) hv);
             return sv;
         }
         break;
@@ -49,7 +49,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
                 assert(*current != NULL);
                 av_push(av, mksv(current));
             }
-            sv = newRV_inc((SV *) av);
+            sv = newRV_noinc((SV *) av);
             return sv;
         }
         break;
