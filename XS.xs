@@ -20,7 +20,7 @@ static int has_highbyte(const U8 * ptr, int size)
     return 0;
 }
 
-static SV *mksv(MMDB_decode_all_s ** current)
+static SV *mksv_r(MMDB_decode_all_s ** current)
 {
 
     SV *sv;
@@ -33,8 +33,8 @@ static SV *mksv(MMDB_decode_all_s ** current)
             int size = (*current)->decode.data.data_size;
             for (*current = (*current)->next; size; size--) {
                 assert(*current != NULL);
-                SV *key = mksv(current);
-                SV *val = mksv(current);
+                SV *key = mksv_r(current);
+                SV *val = mksv_r(current);
                 hv_store_ent(hv, key, val, 0);
             }
             sv = newRV_noinc((SV *) hv);
@@ -47,7 +47,7 @@ static SV *mksv(MMDB_decode_all_s ** current)
             int size = (*current)->decode.data.data_size;
             for (*current = (*current)->next; size; size--) {
                 assert(*current != NULL);
-                av_push(av, mksv(current));
+                av_push(av, mksv_r(current));
             }
             sv = newRV_noinc((SV *) av);
             return sv;
@@ -98,15 +98,14 @@ static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
 {
     SV *sv = &PL_sv_undef;
     if (root->entry.offset > 0) {
-        MMDB_decode_all_s *decode_all, *tmp;
-        tmp = decode_all = MMDB_alloc_decode_all();
+        MMDB_decode_all_s *decode_all;
         int status = MMDB_get_tree(&root->entry, &decode_all);
         if (status != MMDB_SUCCESS) {
             croak("MaxMind::DB::Reader::XS Err %d", status);
         }
         sv = mksv(&decode_all);
         sv_2mortal(sv);
-        MMDB_free_decode_all(tmp);
+        MMDB_free_decode_all(decode_all);
     }
     return sv;
 }
@@ -132,6 +131,12 @@ static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
         croak("MaxMind::DB::Reader::XS lookup Err %d", status);
     }
     return status;
+}
+static SV *mksv(MMDB_decode_all_s ** current) {
+    MMDB_decode_all_s * tmp = *current;
+    SV * sv = mksv_r(current);
+    *current = tmp;
+    return sv;
 }
 
 MODULE = MaxMind::DB::Reader::XS                PACKAGE = MaxMind::DB::Reader::XS                
