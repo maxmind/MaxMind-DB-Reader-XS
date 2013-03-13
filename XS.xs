@@ -94,6 +94,14 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
     return sv;
 }
 
+static SV *mksv(MMDB_decode_all_s ** current)
+{
+    MMDB_decode_all_s *tmp = *current;
+    SV *sv = mksv_r(current);
+    *current = tmp;
+    return sv;
+}
+
 static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
 {
     SV *sv = &PL_sv_undef;
@@ -132,13 +140,6 @@ static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
     }
     return status;
 }
-static SV *mksv(MMDB_decode_all_s ** current) {
-    MMDB_decode_all_s * tmp = *current;
-    SV * sv = mksv_r(current);
-    *current = tmp;
-    return sv;
-}
-
 MODULE = MaxMind::DB::Reader::XS                PACKAGE = MaxMind::DB::Reader::XS                
 
 const char *
