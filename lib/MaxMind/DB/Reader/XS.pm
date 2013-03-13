@@ -15,22 +15,34 @@ our @ISA = qw(Exporter);
 # This allows declaration	use MaxMind::DB::Reader::XS ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
+our %EXPORT_TAGS = (
+    'all' => [
+        qw(
+
+            )
+    ]
+);
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	
+
 );
 
 our $VERSION = '0.01';
 
 require XSLoader;
-XSLoader::load('MaxMind::DB::Reader::XS', $VERSION);
+XSLoader::load( 'MaxMind::DB::Reader::XS', $VERSION );
 
-# Preloaded methods go here.
+sub record_for_hostname {
+    my ( $self, $host ) = @_;
+    return scalar( $self->lookup_by_host($host) );
+}
+
+sub record_for_address {
+    my ( $self, $addr ) = @_;
+    return scalar( $self->lookup_by_ip($addr) );
+}
 
 1;
 __END__
