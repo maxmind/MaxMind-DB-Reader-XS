@@ -173,13 +173,23 @@ lookup_by_ip(mmdb, ipstr)
         if ( status != MMDB_SUCCESS ) {
             croak( "MaxMind::DB::Reader::XS lookup Err %d", status );
         }
-        MMDB_decode_all_s *decode_all = MMDB_alloc_decode_all();
-        MMDB_decode_all_s *tmp = decode_all;
-        status = MMDB_get_tree(&root.entry, &decode_all);
-        if ( status != MMDB_SUCCESS ) {
-            croak( "MaxMind::DB::Reader::XS Err %d", status );
-        }
-        SV * sv = mksv(&decode_all);
-	MMDB_free_decode_all(tmp);
-        XPUSHs(sv_2mortal(sv));
+        if ( GIMME_V != G_VOID ) {
+            SV * sv = &PL_sv_undef;
+            if (root.entry.offset > 0) {
+                MMDB_decode_all_s *decode_all, *tmp;
+               tmp = decode_all = MMDB_alloc_decode_all();
+                status = MMDB_get_tree(&root.entry, &decode_all);
+                if ( status != MMDB_SUCCESS ) {
+                    croak( "MaxMind::DB::Reader::XS Err %d", status );
+                }
+                sv = mksv(&decode_all);
+                sv_2mortal(sv);
+               MMDB_free_decode_all(tmp);
+           }
+            XPUSHs( sv);
+           if ( GIMME_V == G_ARRAY ){
+               XPUSHs(sv_2mortal(newSVuv(root.netmask)));
+           }
+       }
+
 
