@@ -152,7 +152,7 @@ lookup_by_ip(mmdb, ipstr)
     PREINIT:
         struct in_addr ip;
         struct in6_addr ip6;
-        int err;
+        int status;
         uint32_t ipnum;
         I32 gV = GIMME_V;
         MMDB_root_entry_s root;// = {.entry.mmdb = mmdb };
@@ -164,20 +164,20 @@ lookup_by_ip(mmdb, ipstr)
             if (ipstr == NULL || 1 != inet_pton(AF_INET, ipstr, &ip))
                 croak( "MaxMind::DB::Reader::XS Invalid IPv4 Address" );
             ipnum = htonl(ip.s_addr);
-            err = MMDB_lookup_by_ipnum( ipnum , &root );
+            status = MMDB_lookup_by_ipnum( ipnum , &root );
 	} else {
 	    if (ipstr == NULL || 1 != inet_pton(AF_INET6, ipstr, &ip6))
                 croak( "MaxMind::DB::Reader::XS Invalid IPv6 Address" );
-            err = MMDB_lookup_by_ipnum_128( ip6, &root );
+            status = MMDB_lookup_by_ipnum_128( ip6, &root );
 	}
-        if ( err != MMDB_SUCCESS ) {
-            croak( "MaxMind::DB::Reader::XS lookup Err %d", err );
+        if ( status != MMDB_SUCCESS ) {
+            croak( "MaxMind::DB::Reader::XS lookup Err %d", status );
         }
         MMDB_decode_all_s *decode_all = MMDB_alloc_decode_all();
         MMDB_decode_all_s *tmp = decode_all;
-        err = MMDB_get_tree(&root.entry, &decode_all);
-        if ( err != MMDB_SUCCESS ) {
-            croak( "MaxMind::DB::Reader::XS Err %d", err );
+        status = MMDB_get_tree(&root.entry, &decode_all);
+        if ( status != MMDB_SUCCESS ) {
+            croak( "MaxMind::DB::Reader::XS Err %d", status );
         }
         SV * sv = mksv(&decode_all);
 	MMDB_free_decode_all(tmp);
