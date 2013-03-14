@@ -202,7 +202,7 @@ lookup_by_host(mmdb, ipstr)
         root.entry.mmdb = mmdb;
         MMDB_DBG_CARP("XS:lookup_by_host{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
 
-        lookup(&root, ipstr, 0);
+        lookup(&root, ipstr, AI_V4MAPPED);
 
        if ( gV != G_VOID ) {
 	   SV * sv = get_mortal_hash_for(&root);
@@ -223,7 +223,7 @@ lookup_by_ip(mmdb, ipstr)
         root.entry.mmdb = mmdb;
         MMDB_DBG_CARP("XS:lookup_by_ip{mmdb} fd:%d depth:%d node_count:%d\n", mmdb->fd, mmdb->depth, mmdb->node_count);
 
-        lookup(&root, ipstr, AI_NUMERICHOST);
+        lookup(&root, ipstr, AI_NUMERICHOST|AI_V4MAPPED);
         if ( gV != G_VOID ) {
 	    SV * sv = get_mortal_hash_for(&root);
             XPUSHs(sv);
