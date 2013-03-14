@@ -34,6 +34,15 @@ our $VERSION = '0.01';
 require XSLoader;
 XSLoader::load( 'MaxMind::DB::Reader::XS', $VERSION );
 
+use Params::Validate;
+
+sub new {
+    my $class  = shift;
+    my %params = validate( @_, { file => 1 } );
+    my $self   = $class->open( $params{file}, 2 ) or die;
+    return $self;
+}
+
 sub record_for_hostname {
     my ( $self, $host ) = @_;
     return scalar( $self->lookup_by_host($host) );
