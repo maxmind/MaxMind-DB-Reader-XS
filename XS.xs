@@ -22,7 +22,6 @@ static int has_highbyte(const U8 * ptr, int size)
 
 static SV *mksv_r(MMDB_decode_all_s ** current)
 {
-
     SV *sv;
     MMDB_DBG_CARP("type %d\n", (*current)->decode.data.type);
 
@@ -56,15 +55,21 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
     case MMDB_DTYPE_UTF8_STRING:
         {
             int size = (*current)->decode.data.data_size;
-            const U8 *ptr = (const U8 *)(*current)->decode.data.ptr;
+            const U8 *ptr = size
+	        ? (const U8 *)(*current)->decode.data.ptr
+	        : "";
             sv = newSVpvn((const char *)ptr, size);
             if (has_highbyte(ptr, size))
                 SvUTF8_on(sv);
         }
         break;
     case MMDB_DTYPE_BYTES:
-        sv = newSVpvn((const char *)(*current)->decode.data.ptr,
-                      (*current)->decode.data.data_size);
+        {
+            int size = (*current)->decode.data.data_size;
+            sv = newSVpvn( size
+	        ? (const char *)(*current)->decode.data.ptr
+		: "", size);
+        }
         break;
     case MMDB_DTYPE_DOUBLE:
         sv = newSVnv((*current)->decode.data.double_value);
