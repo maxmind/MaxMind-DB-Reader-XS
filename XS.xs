@@ -123,13 +123,11 @@ static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
     struct in_addr ip;
     struct in6_addr ip6;
     int status;
-    uint32_t ipnum;
     int depth = root->entry.mmdb->depth;
     if (depth == 32) {
         if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET, ai_flags, &ip))
             croak("MaxMind::DB::Reader::XS Invalid IPv4 Address");
-        ipnum = htonl(ip.s_addr);
-        status = MMDB_lookup_by_ipnum(ipnum, root);
+        status = MMDB_lookup_by_ipnum(htonl(ip.s_addr), root);
     } else {
         if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET6, ai_flags, &ip6))
             croak("MaxMind::DB::Reader::XS Invalid IPv6 Address");
