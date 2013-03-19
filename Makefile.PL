@@ -46,7 +46,7 @@ if ( $config{LIBS} !~ /\-lmaxminddb\b/ ) {
     $config{LIBS} .= ' -lmaxminddb';
 }
 
-if ( $CONFIG{INC} ) {
+if ( $config{INC} ) {
     $config{INC} .= ' -I.';
 }
 
