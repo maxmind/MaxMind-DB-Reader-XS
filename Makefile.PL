@@ -41,11 +41,14 @@ unless ( $config{LIBS} ) {
         }
     }
 }
+
 if ( $config{LIBS} !~ /\-lmaxminddb\b/ ) {
     $config{LIBS} .= ' -lmaxminddb';
 }
 
-my @extras = ();
+if ( $CONFIG{INC} ) {
+    $config{INC} .= ' -I.';
+}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -65,9 +68,8 @@ WriteMakefile(
             )
         : ()
     ),
-    LIBS   => [ '-lmaxminddb' ],            # e.g., '-lm'
-    DEFINE => '-DPERL_EXT',    # otherwise 'cxinc' isn't defined
-    INC    => '-I.',           # e.g., '-I. -I/usr/include/other'
-         # Un-comment this if you add C files to link with later:
-         # OBJECT            => '$(O_FILES)', # link all the C files too
+    LIBS   => ['-lmaxminddb'],    # e.g., '-lm'
+    DEFINE => '-DPERL_EXT',       # otherwise 'cxinc' isn't defined
+    INC    => '-I.',              # e.g., '-I. -I/usr/include/other'
+    %config,
 );
