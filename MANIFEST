@@ -3,6 +3,7 @@ Makefile.PL
 MANIFEST
 ppport.h
 README
+typemap
 XS.xs
 t/MaxMind-DB-Reader-XS.t
 lib/MaxMind/DB/Reader/XS.pm
