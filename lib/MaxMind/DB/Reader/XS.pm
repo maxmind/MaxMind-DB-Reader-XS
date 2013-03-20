@@ -4,37 +4,41 @@ use 5.012000;
 use strict;
 use warnings;
 
-require Exporter;
+use Moose;
 
-our @ISA = qw(Exporter);
+extends 'MaxMind::DB::Reader';
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use MaxMind::DB::Reader::XS ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = (
-    'all' => [
-        qw(
-
-            )
-    ]
-);
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-
-);
-
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 require XSLoader;
 XSLoader::load( 'MaxMind::DB::Reader::XS', $VERSION );
 
 use Params::Validate;
+use NetAddr::IP::Util 'bin2bcd';
+
+our @_simple_metadata_keys = (
+    'ip_version',
+    'binary_format_minor_version',
+    'description',
+    'node_count',
+    'database_type',
+    'languages',
+    'record_size',
+    'binary_format_major_version'
+);
+
+our @_special_metadata_keys = (
+    'build_epoch',
+);
+
+our @_metadata_keys = ( @_simple_metadata_keys, @_special_metadata_keys );
+
+for my $method (@_simple_metadata_keys) {
+    no strict 'refs';
+    *$method = sub { $_[0]->metadata->{$method} };
+}
+
+sub build_epoch { bin2bcd( pack x8a8 => $_[0]->metadata->{build_epoch} ) }
 
 sub new {
     my $class  = shift;
@@ -42,6 +46,17 @@ sub new {
     my $self   = $class->open( $params{file}, 2 ) or die;
     return $self;
 }
+
+sub _reader {
+  return $_[0];
+}
+
+sub data_for_address {
+	my ( $self, $addr )= @_;
+  return scalar( $self->lookup_by_ip($addr) );
+}
+
+=pod
 
 sub record_for_hostname {
     my ( $self, $host ) = @_;
@@ -52,6 +67,8 @@ sub record_for_address {
     my ( $self, $addr ) = @_;
     return scalar( $self->lookup_by_ip($addr) );
 }
+
+=cut
 
 1;
 __END__
