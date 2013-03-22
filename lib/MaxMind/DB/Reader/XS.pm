@@ -40,6 +40,14 @@ for my $method (@_simple_metadata_keys) {
 
 sub build_epoch { bin2bcd( pack x8a8 => $_[0]->metadata->{build_epoch} ) }
 
+sub metadata_to_encode {
+    my $self     = shift;
+    my $metadata = $self->metadata;
+    $metadata->{build_epoch}
+        = bin2bcd( pack x8a8 => $metadata->{build_epoch} );
+    return $metadata;
+}
+
 sub new {
     my $class  = shift;
     my %params = validate( @_, { file => 1 } );
@@ -48,12 +56,12 @@ sub new {
 }
 
 sub _reader {
-  return $_[0];
+    return $_[0];
 }
 
 sub data_for_address {
-	my ( $self, $addr )= @_;
-  return scalar( $self->lookup_by_ip($addr) );
+    my ( $self, $addr ) = @_;
+    return scalar( $self->lookup_by_ip($addr) );
 }
 
 =pod
