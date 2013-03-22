@@ -32,9 +32,16 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
             int size = (*current)->decode.data.data_size;
             for (*current = (*current)->next; size; size--) {
                 assert(*current != NULL);
-                SV *key = mksv_r(current);
+		assert(    (*current)->decode.data.type == MMDB_DTYPE_UTF8_STRING
+		        || (*current)->decode.data.type == MMDB_DTYPE_BYTES );
+		int key_size = (*current)->decode.data.data_size;
+                const U8 *key_ptr = size
+	            ? (const U8 *)(*current)->decode.data.ptr
+	            : "";
+                *current = (*current)->next;
+                assert(*current != NULL);
                 SV *val = mksv_r(current);
-                hv_store_ent(hv, key, val, 0);
+                hv_store(hv, key_ptr, key_size, val, 0);
             }
             sv = newRV_noinc((SV *) hv);
             return sv;
@@ -116,8 +123,7 @@ static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
         if (status != MMDB_SUCCESS) {
             croak("MaxMind::DB::Reader::XS Err %d", status);
         }
-        sv = mksv(&decode_all);
-        sv_2mortal(sv);
+        sv = sv_2mortal(mksv(&decode_all));
         MMDB_free_decode_all(decode_all);
     }
     return sv;
