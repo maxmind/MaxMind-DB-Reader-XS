@@ -35,13 +35,13 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
 		assert(    (*current)->decode.data.type == MMDB_DTYPE_UTF8_STRING
 		        || (*current)->decode.data.type == MMDB_DTYPE_BYTES );
 		int key_size = (*current)->decode.data.data_size;
-                const U8 *key_ptr = size
-	            ? (const U8 *)(*current)->decode.data.ptr
+                const char *key_ptr = size
+	            ? (const char *)(*current)->decode.data.ptr
 	            : "";
                 *current = (*current)->next;
                 assert(*current != NULL);
                 SV *val = mksv_r(current);
-                hv_store(hv, key_ptr, key_size, val, 0);
+                (void)hv_store(hv, key_ptr, key_size, val, 0);
             }
             sv = newRV_noinc((SV *) hv);
             return sv;
@@ -62,11 +62,11 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
     case MMDB_DTYPE_UTF8_STRING:
         {
             int size = (*current)->decode.data.data_size;
-            const U8 *ptr = size
-	        ? (const U8 *)(*current)->decode.data.ptr
+            const char *ptr = size
+	        ? (const char *)(*current)->decode.data.ptr
 	        : "";
             sv = newSVpvn((const char *)ptr, size);
-            if (has_highbyte(ptr, size))
+            if (has_highbyte((const U8*)ptr, size))
                 SvUTF8_on(sv);
         }
         break;
