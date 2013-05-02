@@ -81,6 +81,7 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
     case MMDB_DTYPE_DOUBLE:
         sv = newSVnv((*current)->decode.data.double_value);
         break;
+    case MMDB_DTYPE_BOOLEAN:
     case MMDB_DTYPE_UINT16:
     case MMDB_DTYPE_UINT32:
         sv = newSVuv((*current)->decode.data.uinteger);
