@@ -9,7 +9,7 @@ our $VERSION = '0.01';
 use MaxMind::DB::Reader::XS;
 use Data::Dumper;
 
-my $x18181818 = {
+my $ip_24_24_24_24 = {
     'country' => {
         'iso_code' => 'US',
         'names'    => {
@@ -108,7 +108,7 @@ is( $meta->{description}{en}, 'Test Database', 'description match' );
 is( "@{$meta->{languages}}", 'en ja ru zh-CN', 'DB contains en ja ru zh-CN' );
 
 my $result = $mmdb->lookup_by_ip('24.24.24.24');
-is_deeply( $result, $x18181818, "Data for 24.24.24.24 match" );
+is_deeply( $result, $ip_24_24_24_24, "Data for 24.24.24.24 match" );
 
 is( utf8::is_utf8($result->{registered_country}{names}{ja}), 1, "utf8 flag is set for names/ja");
 ok( !utf8::is_utf8($result->{registered_country}{names}{us}), "utf8 flag is NOT set for names/us");
