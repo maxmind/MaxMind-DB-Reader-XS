@@ -110,8 +110,13 @@ is( "@{$meta->{languages}}", 'en ja ru zh-CN', 'DB contains en ja ru zh-CN' );
 my $result = $mmdb->lookup_by_ip('24.24.24.24');
 is_deeply( $result, $ip_24_24_24_24, "Data for 24.24.24.24 match" );
 
-is( utf8::is_utf8($result->{registered_country}{names}{ja}), 1, "utf8 flag is set for names/ja");
-ok( !utf8::is_utf8($result->{registered_country}{names}{us}), "utf8 flag is NOT set for names/us");
+is( utf8::is_utf8( $result->{registered_country}{names}{ja} ), 1,
+    "utf8 flag is set for names/ja" );
+ok( !utf8::is_utf8( $result->{registered_country}{names}{us} ),
+    "utf8 flag is NOT set for names/us" );
+
+ok( $result->{traits}{is_military} == 0, "Boolean zero works" );
+ok( $result->{traits}{cellular} == 1,    "Boolean one works" );
 
 done_testing();
 
