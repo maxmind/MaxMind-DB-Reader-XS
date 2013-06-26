@@ -220,7 +220,7 @@ void
 _close_mmdb(self, mmdb)
         MMDB_s * mmdb;
     CODE:
-        MMDB_close(mmdb, 1);
+        MMDB_close(mmdb);
 
 
 void

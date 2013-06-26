@@ -1,8 +1,8 @@
 TYPEMAP
-char *          O_CHAR
-const char *    T_PV
-MMDB_s *        T_OPAQUEPTR
-double          T_DOUBLE
+char *        O_CHAR
+const char *  T_PV
+MMDB_s *      T_OPAQUE
+double        T_DOUBLE
 
 INPUT
 
@@ -20,4 +20,3 @@ O_CHAR
         free($var);
         sv_2mortal($arg);
    }
-
