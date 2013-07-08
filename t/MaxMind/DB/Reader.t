@@ -2,14 +2,17 @@ use strict;
 use warnings;
 use autodie;
 
-use Test::More 0.88;
+use Test::More;
+
+use lib 't/lib';
+use Test::MaxMind::DB::Reader;
 
 use File::Temp qw( tempdir );
 use MaxMind::DB::Writer::Tree::InMemory;
 use MaxMind::DB::Writer::Tree::File;
 use Net::Works::Network;
 
-use MaxMind::DB::Reader::XS;
+use MaxMind::DB::Reader;
 
 my $tempdir = tempdir( CLEANUP => 1 );
 
@@ -23,7 +26,7 @@ for my $record_size ( 24, 28, 32 ) {
         my ( $tree, $filename )
             = _write_tree( $record_size, \@subnets, { ip_version => 4 } );
 
-        my $reader = MaxMind::DB::Reader::XS->new( file => $filename );
+        my $reader = MaxMind::DB::Reader->new( file => $filename );
 
         _test_metadata(
             $reader, $tree,
@@ -77,7 +80,7 @@ for my $record_size ( 24, 28, 32 ) {
         my ( $tree, $filename )
             = _write_tree( $record_size, \@subnets, { ip_version => 6 } );
 
-        my $reader = MaxMind::DB::Reader::XS->new( file => $filename );
+        my $reader = MaxMind::DB::Reader->new( file => $filename );
 
         _test_metadata(
             $reader, $tree,
