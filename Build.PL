@@ -16,7 +16,7 @@ warn <<'EOF';
 EOF
 
 Module::Build->new(
-    module_name          => 'MaxMind::DB::Reader::File::XS',
+    module_name          => 'MaxMind::DB::Reader::XS',
     dist_abstract        => 'Whatever',
     dist_version         => 42,
     license              => 'perl',

@@ -31,12 +31,12 @@ static SV *decode_bigint(SV * binary) {
     PUSHMARK(SP);
     XPUSHs(sv_2mortal(binary));
     PUTBACK;
-    count = call_pv("MaxMind::DB::Reader::File::XS::_decode_bigint", G_SCALAR);
+    count = call_pv("MaxMind::DB::Reader::XS::_decode_bigint", G_SCALAR);
 
     SPAGAIN;
 
     if (count != 1) {
-        croak("Called MaxMind::DB::Reader::File::XS::_decode_bigint and got back %i values when we expected 1", count);
+        croak("Called MaxMind::DB::Reader::XS::_decode_bigint and got back %i values when we expected 1", count);
     }
 
     /* The returned SV is mortal, so we need to bump the ref count */
@@ -157,7 +157,7 @@ static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
         MMDB_decode_all_s *decode_all;
         int status = MMDB_get_tree(&root->entry, &decode_all);
         if (status != MMDB_SUCCESS) {
-            croak("MaxMind::DB::Reader::File::XS Err %d", status);
+            croak("MaxMind::DB::Reader::XS Err %d", status);
         }
         sv = sv_2mortal(mksv(&decode_all));
         MMDB_free_decode_all(decode_all);
@@ -173,22 +173,22 @@ static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
     int depth = root->entry.mmdb->depth;
     if (depth == 32) {
         if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET, ai_flags, &ip)) {
-            croak("MaxMind::DB::Reader::File::XS Invalid IPv4 Address");
+            croak("MaxMind::DB::Reader::XS Invalid IPv4 Address");
         }
         status = MMDB_lookup_by_ipnum(htonl(ip.s_addr), root);
     } else {
         if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET6, ai_flags, &ip6)) {
-            croak("MaxMind::DB::Reader::File::XS Invalid IPv6 Address");
+            croak("MaxMind::DB::Reader::XS Invalid IPv6 Address");
         }
         status = MMDB_lookup_by_ipnum_128(ip6, root);
     }
     if (status != MMDB_SUCCESS) {
-        croak("MaxMind::DB::Reader::File::XS lookup Err %d", status);
+        croak("MaxMind::DB::Reader::XS lookup Err %d", status);
     }
     return status;
 }
 
-MODULE = MaxMind::DB::Reader::File::XS    PACKAGE = MaxMind::DB::Reader::File::XS
+MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
 
 const char *
 lib_version(self)
@@ -205,7 +205,7 @@ _open_mmdb(self, file, flags)
         MMDB_s * mmdb = NULL;
     CODE:
         if ( file == NULL ) {
-            croak("MaxMind::DB::Reader::File::XS file missing\n");
+            croak("MaxMind::DB::Reader::XS file missing\n");
         }
         mmdb = MMDB_open(file, flags);
         RETVAL = mmdb;
@@ -234,7 +234,7 @@ _raw_metadata(self, mmdb)
         MMDB_decode_all_s *tmp = decode_all;
         err = MMDB_get_tree(&mmdb->meta, &decode_all);
         if ( err != MMDB_SUCCESS ) {
-            croak( "MaxMind::DB::Reader::File::XS Err %d", err );
+            croak( "MaxMind::DB::Reader::XS Err %d", err );
         }
         sv = mksv(&decode_all);
         MMDB_free_decode_all(tmp);

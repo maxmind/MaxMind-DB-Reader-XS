@@ -1,4 +1,4 @@
-package MaxMind::DB::Reader::File::XS;
+package MaxMind::DB::Reader::XS;
 
 use strict;
 use warnings;
@@ -16,9 +16,9 @@ use XSLoader;
 
 XSLoader::load(
     __PACKAGE__,
-    exists $MaxMind::DB::Reader::File::XS::{VERSION}
-        && ${ $MaxMind::DB::Reader::File::XS::{VERSION} }
-    ? ${ $MaxMind::DB::Reader::File::XS::{VERSION} }
+    exists $MaxMind::DB::Reader::XS::{VERSION}
+        && ${ $MaxMind::DB::Reader::XS::{VERSION} }
+    ? ${ $MaxMind::DB::Reader::XS::{VERSION} }
     : 42
 );
 
