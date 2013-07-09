@@ -6,8 +6,9 @@ use namespace::autoclean;
 
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
+use MooX::Types::MooseLike::Base qw( Int Str );
 
-use Moose;
+use Moo;
 
 with 'MaxMind::DB::Reader::Role::Reader';
 
@@ -23,13 +24,13 @@ XSLoader::load(
 
 has file => (
     is       => 'ro',
-    isa      => 'Str',
+    isa      => Str,
     required => 1,
 );
 
 has _mmdb => (
     is        => 'ro',
-    isa       => 'Str',
+    isa       => Str,
     init_arg  => undef,
     lazy      => 1,
     builder   => '_build_mmdb',
@@ -40,7 +41,7 @@ has _mmdb => (
 # eventually we need to expose the flag constants in Perl
 has _flags => (
     is       => 'ro',
-    isa      => 'Int',
+    isa      => Int,
     init_arg => undef,
     default  => 2,
 );
