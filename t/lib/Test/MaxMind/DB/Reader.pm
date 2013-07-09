@@ -1,5 +1,4 @@
-package # hide from PAUSE
-    Test::MaxMind::DB::Reader;
+package Test::MaxMind::DB::Reader;
 
 use strict;
 use warnings;
