@@ -93,3 +93,5 @@ sub _zero_pad_left {
 __PACKAGE__->meta()->make_immutable();
 
 1;
+
+# ABSTRACT: Fast XS implementation of MaxMind DB reader
