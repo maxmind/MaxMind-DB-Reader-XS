@@ -5,7 +5,6 @@ use warnings;
 use namespace::autoclean;
 
 use Math::Int128 qw( uint128 );
-use NetAddr::IP::Util qw( bin2bcd );
 use MaxMind::DB::Metadata;
 
 use Moose;
@@ -79,7 +78,14 @@ sub DEMOLISH {
 sub _decode_bigint {
     my $buffer = shift;
 
-    return uint128( bin2bcd( _zero_pad_left( $buffer, 16 ) ) );
+    my $int = uint128(0);
+
+    my @unpacked = unpack( 'NNNN', _zero_pad_left( $buffer, 16 ) );
+    for my $piece (@unpacked) {
+        $int = ( $int << 32 ) | $piece;
+    }
+
+    return $int;
 }
 
 # Copied from MaxMind::DB::Reader::Decoder
