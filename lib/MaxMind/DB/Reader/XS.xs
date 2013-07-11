@@ -165,23 +165,34 @@ static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
     return sv;
 }
 
-static int lookup(MMDB_root_entry_s * root, const char *ipstr, int ai_flags)
+static int lookup(MMDB_root_entry_s * root, const char *ipstr)
 {
     struct in_addr ip;
     struct in6_addr ip6;
+    int ai_flags = AI_NUMERICHOST|AI_V4MAPPED;
     int status;
+
     int depth = root->entry.mmdb->depth;
+
+    if (ipstr == NULL) {
+        croak("MaxMind::DB::Reader::XS address to lookup is NULL");
+    }
+
     if (depth == 32) {
-        if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET, ai_flags, &ip)) {
+        if (0 != MMDB_lookupaddressX(ipstr, AF_INET, ai_flags, &ip)) {
             croak("MaxMind::DB::Reader::XS Invalid IPv4 Address");
         }
+
         status = MMDB_lookup_by_ipnum(htonl(ip.s_addr), root);
-    } else {
-        if (ipstr == NULL || 0 != MMDB_lookupaddressX(ipstr, AF_INET6, ai_flags, &ip6)) {
+    }
+    else {
+        if (0 != MMDB_lookupaddressX(ipstr, AF_INET6, ai_flags, &ip6)) {
             croak("MaxMind::DB::Reader::XS Invalid IPv6 Address");
         }
+
         status = MMDB_lookup_by_ipnum_128(ip6, root);
     }
+
     if (status != MMDB_SUCCESS) {
         croak("MaxMind::DB::Reader::XS lookup Err %d", status);
     }
@@ -250,7 +261,7 @@ _data_for_address(self, mmdb, ipstr)
     PPCODE:
         root.entry.mmdb = mmdb;
 
-        lookup(&root, ipstr, AI_NUMERICHOST|AI_V4MAPPED);
+        lookup(&root, ipstr);
         if ( gV != G_VOID ) {
             SV * sv = get_mortal_hash_for(&root);
             XPUSHs(sv);
