@@ -219,10 +219,10 @@ _open_mmdb(self, file, flags)
             croak("MaxMind::DB::Reader::XS file missing\n");
         }
         mmdb = MMDB_open(file, flags);
-        RETVAL = mmdb;
         if ( mmdb == NULL ) {
             croak("Can't open database %s\n", file );
         }
+        RETVAL = mmdb;
     OUTPUT:
         RETVAL
 
