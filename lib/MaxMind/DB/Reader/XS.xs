@@ -179,14 +179,14 @@ static int lookup(MMDB_root_entry_s * root, const char *ipstr)
     }
 
     if (depth == 32) {
-        if (0 != MMDB_lookupaddressX(ipstr, AF_INET, ai_flags, &ip)) {
+        if (0 != MMDB_resolve_address(ipstr, AF_INET, ai_flags, &ip)) {
             croak("MaxMind::DB::Reader::XS Invalid IPv4 Address");
         }
 
         status = MMDB_lookup_by_ipnum(htonl(ip.s_addr), root);
     }
     else {
-        if (0 != MMDB_lookupaddressX(ipstr, AF_INET6, ai_flags, &ip6)) {
+        if (0 != MMDB_resolve_address(ipstr, AF_INET6, ai_flags, &ip6)) {
             croak("MaxMind::DB::Reader::XS Invalid IPv6 Address");
         }
 
