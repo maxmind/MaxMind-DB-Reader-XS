@@ -49,7 +49,7 @@ static SV *decode_bigint(SV * binary) {
     return decoded;
 }
 
-static SV *mksv_r(MMDB_decode_all_s ** current)
+static SV *make_sv_from_decode_struct_r(MMDB_decode_all_s ** current)
 {
     SV *sv;
     MMDB_DBG_CARP("type %d\n", (*current)->decode.data.type);
@@ -73,7 +73,7 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
                     : "";
                 *current = (*current)->next;
                 assert(*current != NULL);
-                val = mksv_r(current);
+                val = make_sv_from_decode_struct_r(current);
                 (void)hv_store(hv, key_ptr, key_size, val, 0);
             }
             sv = newRV_noinc((SV *) hv);
@@ -86,7 +86,7 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
             int size = (*current)->decode.data.data_size;
             for (*current = (*current)->next; size; size--) {
                 assert(*current != NULL);
-                av_push(av, mksv_r(current));
+                av_push(av, make_sv_from_decode_struct_r(current));
             }
             sv = newRV_noinc((SV *) av);
             return sv;
@@ -142,10 +142,10 @@ static SV *mksv_r(MMDB_decode_all_s ** current)
     return sv;
 }
 
-static SV *mksv(MMDB_decode_all_s ** current)
+static SV *make_sv_from_decode_struct(MMDB_decode_all_s ** current)
 {
     MMDB_decode_all_s *tmp = *current;
-    SV *sv = mksv_r(current);
+    SV *sv = make_sv_from_decode_struct_r(current);
     *current = tmp;
     return sv;
 }
@@ -159,7 +159,7 @@ static SV *get_mortal_hash_for(MMDB_root_entry_s * root)
         if (status != MMDB_SUCCESS) {
             croak("MaxMind::DB::Reader::XS Err %d", status);
         }
-        sv = sv_2mortal(mksv(&decode_all));
+        sv = sv_2mortal(make_sv_from_decode_struct(&decode_all));
         MMDB_free_decode_all(decode_all);
     }
     return sv;
@@ -247,7 +247,7 @@ _raw_metadata(self, mmdb)
         if ( err != MMDB_SUCCESS ) {
             croak( "MaxMind::DB::Reader::XS Err %d", err );
         }
-        sv = mksv(&decode_all);
+        sv = make_sv_from_decode_struct(&decode_all);
         MMDB_free_decode_all(tmp);
         XPUSHs(sv_2mortal(sv));
 
