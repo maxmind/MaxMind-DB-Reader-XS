@@ -1,8 +1,6 @@
 TYPEMAP
 char *        O_CHAR
-const char *  T_PV
 MMDB_s *      T_OPAQUE
-double        T_DOUBLE
 
 INPUT
 
