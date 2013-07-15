@@ -7,8 +7,6 @@ use namespace::autoclean;
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
 use MaxMind::DB::Types qw( Int Str );
-# XXX - replace this with something else so we don't dep on NetAddr::IP
-use NetAddr::IP::Util qw( bin2bcd );
 
 use Moo;
 
