@@ -242,13 +242,12 @@ _raw_metadata(self, mmdb)
         int err;
     PPCODE:
         MMDB_decode_all_s *decode_all = MMDB_alloc_decode_all();
-        MMDB_decode_all_s *tmp = decode_all;
         err = MMDB_get_tree(&mmdb->meta, &decode_all);
         if ( err != MMDB_SUCCESS ) {
             croak( "MaxMind::DB::Reader::XS Err %d", err );
         }
         sv = make_sv_from_decode_struct(&decode_all);
-        MMDB_free_decode_all(tmp);
+        MMDB_free_decode_all(decode_all);
         XPUSHs(sv_2mortal(sv));
 
 void
