@@ -48,6 +48,13 @@ has _flags => (
     default  => 2,
 );
 
+sub _data_for_address {
+    my $self = shift;
+    my $addr = shift;
+
+    return scalar $self->_lookup_address( $self->_mmdb(), $addr );
+}
+
 sub _build_mmdb {
     my $self = shift;
 
@@ -60,13 +67,6 @@ sub _build_metadata {
     my $raw = $self->_raw_metadata( $self->_mmdb() );
 
     return MaxMind::DB::Metadata->new($raw);
-}
-
-sub record_for_address {
-    my $self = shift;
-    my $addr = shift;
-
-    return scalar $self->_data_for_address( $self->_mmdb(), $addr );
 }
 
 sub DEMOLISH {

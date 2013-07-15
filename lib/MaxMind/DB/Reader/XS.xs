@@ -252,7 +252,7 @@ _raw_metadata(self, mmdb)
         XPUSHs(sv_2mortal(sv));
 
 void
-_data_for_address(self, mmdb, ipstr)
+_lookup_address(self, mmdb, ipstr)
         MMDB_s * mmdb
         char * ipstr
     PREINIT:
