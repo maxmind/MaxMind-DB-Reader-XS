@@ -62,7 +62,7 @@ sub _build_metadata {
     return MaxMind::DB::Metadata->new($raw);
 }
 
-sub data_for_address {
+sub record_for_address {
     my $self = shift;
     my $addr = shift;
 
