@@ -21,6 +21,6 @@ Module::Build->new(
     dist_version         => 42,
     license              => 'perl',
     recursive_test_files => 1,
-    extra_compiler_flags => [qw(-Wall -Wdeclaration-after-statement)],
+    extra_compiler_flags => [qw(-Wall -Wdeclaration-after-statement -g)],
     extra_linker_flags   => ['-lmaxminddb'],
 )->create_build_script();
