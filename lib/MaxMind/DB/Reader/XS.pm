@@ -19,7 +19,7 @@ XSLoader::load(
     exists $MaxMind::DB::Reader::XS::{VERSION}
         && ${ $MaxMind::DB::Reader::XS::{VERSION} }
     ? ${ $MaxMind::DB::Reader::XS::{VERSION} }
-    : 42
+    : '0.050000'
 );
 
 has file => (
