@@ -31,6 +31,7 @@ _open_mmdb(self, file, flags)
         uint16_t status = MMDB_open(file, flags, mmdb);
      
         if (MMDB_SUCCESS != status) {
+            free(mmdb);
             croak(
                 "Error opening database file (%s). Is this a valid MaxMind DB file?",
                 file
@@ -47,4 +48,5 @@ _close_mmdb(self, mmdb)
         MMDB_s * mmdb;
     CODE:
         MMDB_close(mmdb);
+        free(mmdb);
 
