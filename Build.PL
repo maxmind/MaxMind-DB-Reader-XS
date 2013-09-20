@@ -18,9 +18,9 @@ EOF
 Module::Build->new(
     module_name          => 'MaxMind::DB::Reader::XS',
     dist_abstract        => 'Whatever',
-    dist_version         => 42,
+    dist_version         => '0.050000',
     license              => 'perl',
     recursive_test_files => 1,
-    extra_compiler_flags => [qw(-Wall -Wdeclaration-after-statement -g)],
+    extra_compiler_flags => [qw(-std=gnu99 -Wall -Wdeclaration-after-statement -g -DMISSING_UINT128)],
     extra_linker_flags   => ['-lmaxminddb'],
 )->create_build_script();
