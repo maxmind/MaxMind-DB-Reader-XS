@@ -13,15 +13,30 @@ extern "C" {
 }
 #endif
 
-static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list);
 static SV *decode_map(MMDB_entry_data_list_s *entry_data_list);
+static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list);
+
+static int has_highbyte(const U8 * ptr, int size)
+{
+    while (--size >= 0)
+        if (*ptr++ > 127)
+            return 1;
+    return 0;
+}
 
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
 {
     switch (entry_data_list->entry_data.type) {
+        printf("type=%i\n",entry_data_list->entry_data.type);
         case MMDB_DATA_TYPE_MAP:
             return decode_map(entry_data_list);
+        case MMDB_DATA_TYPE_UTF8_STRING:
+            return decode_utf8_string(entry_data_list);
+        case MMDB_DATA_TYPE_UINT32:
+            return newSViv(entry_data_list->entry_data.uint32);
+        case MMDB_DATA_TYPE_INT32:
+            return newSViv(entry_data_list->entry_data.int32);
         default:
             return newSViv(666);
     }
@@ -40,14 +55,26 @@ static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
         char *key        = strndup(key_source, key_size);
         entry_data_list  = entry_data_list->next;
 
-        if (0 == key_size) continue;
+        if (0 == key_size)
+            continue;
 
-        SV *val = decode_entry_data_list(&entry_data_list);
-        hv_store(hv, key, key_size, val, 0);
+        SV *val = decode_entry_data_list(entry_data_list);
+        (void)hv_store(hv, key, key_size, val, 0);
     }
 
     return newRV_noinc((SV *) hv);;
 
+}
+
+static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list)
+{
+    SV *sv;
+    int size = entry_data_list->entry_data.data_size;
+    char *data = size ? (char *)entry_data_list->entry_data.utf8_string : "";
+    sv = newSVpvn(data, size);
+    if (has_highbyte((U8*)data, size))
+        SvUTF8_on(sv);
+    return sv;
 }
 
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
@@ -92,7 +119,6 @@ _raw_metadata(self, mmdb)
         MMDB_s *mmdb
     PREINIT:
         SV *sv;
-        int err;
     PPCODE:
         MMDB_entry_data_list_s *entry_data_list;
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
