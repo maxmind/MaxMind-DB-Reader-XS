@@ -55,7 +55,6 @@ sub _data_for_address {
 
 sub _build_mmdb {
     my $self = shift;
-
     return $self->_open_mmdb( $self->file(), $self->_flags() );
 }
 
