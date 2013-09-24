@@ -50,7 +50,7 @@ sub _data_for_address {
     my $self = shift;
     my $addr = shift;
 
-    return scalar $self->_lookup_address( $self->_mmdb(), $addr );
+    return $self->_lookup_address( $self->_mmdb(), $addr );
 }
 
 sub _build_mmdb {

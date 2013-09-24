@@ -157,6 +157,38 @@ _raw_metadata(self, mmdb)
         }
 
         sv = decode_entry_data_list(entry_data_list);
+        MMDB_free_entry_data_list(entry_data_list);
+
+        XPUSHs(sv_2mortal(sv));
+
+void
+_lookup_address(self, mmdb, ip_address)
+        MMDB_s *mmdb
+        char *ip_address
+    PREINIT:
+        SV *sv;
+        int gai_error, mmdb_error, entry_error;
+        MMDB_lookup_result_s result;
+        MMDB_entry_data_list_s *entry_data_list;
+    PPCODE:
+        result = MMDB_lookup_string(mmdb, ip_address, &gai_error, &mmdb_error);
+        if (0 != gai_error) {
+            croak("MaxMind::DB::Reader::XS InvalidArgumentException: the value \"%s\" is not a valid IP address.", ip_address);
+        }
+        if (MMDB_SUCCESS != mmdb_error) {
+            croak("MaxMind::DB::Reader::XS Error looking up %s", ip_address);
+        }
+
+        if (result.found_entry) {
+            entry_error = MMDB_get_entry_data_list(&result.entry, &entry_data_list);
+            if (MMDB_SUCCESS != entry_error) {
+                croak("MaxMind::DB::Reader::XS Get entry data error looking up %s", ip_address);
+            }
+            sv = decode_entry_data_list(entry_data_list);
+            MMDB_free_entry_data_list(entry_data_list);
+        } else {
+            sv = newSViv(0);
+        }
 
         XPUSHs(sv_2mortal(sv));
 

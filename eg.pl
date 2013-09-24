@@ -14,10 +14,9 @@ my $iut = MaxMind::DB::Reader::XS->new(
     file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-32.mmdb',
 );
 
-print "mmdb=".$iut->_mmdb."\n";
+print Dumper $iut->_raw_metadata($iut->_mmdb);
 
-my $metadata = $iut->_raw_metadata($iut->_mmdb);
-print Dumper $metadata;
+print Dumper $iut->_data_for_address("1.1.1.1");
 
 }
 
