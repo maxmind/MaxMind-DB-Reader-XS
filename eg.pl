@@ -17,7 +17,7 @@ my $iut = MaxMind::DB::Reader::XS->new(
 
 print Dumper $iut->_raw_metadata($iut->_mmdb);
 
-print Dumper $iut->_data_for_address("1.1.1.1");
+print Dumper $iut->_data_for_address("216.160.83.56");
 
 }
 
