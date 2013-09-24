@@ -14,29 +14,43 @@ extern "C" {
 #endif
 
 static SV *decode_map(MMDB_entry_data_list_s *entry_data_list);
+static SV *decode_array(MMDB_entry_data_list_s *entry_data_list);
 static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list);
 
-static int has_highbyte(const U8 * ptr, int size)
+static int has_highbyte(const U8 *ptr, int size)
 {
-    while (--size >= 0)
-        if (*ptr++ > 127)
+    while (--size >= 0) {
+        if (*ptr++ > 127) {
             return 1;
+        }
+    }
     return 0;
 }
 
-
 static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
 {
+        printf("type=%d\n",entry_data_list->entry_data.type);
     switch (entry_data_list->entry_data.type) {
-        printf("type=%i\n",entry_data_list->entry_data.type);
         case MMDB_DATA_TYPE_MAP:
             return decode_map(entry_data_list);
+        case MMDB_DATA_TYPE_ARRAY:
+            return decode_array(entry_data_list);
         case MMDB_DATA_TYPE_UTF8_STRING:
             return decode_utf8_string(entry_data_list);
-        case MMDB_DATA_TYPE_UINT32:
-            return newSViv(entry_data_list->entry_data.uint32);
         case MMDB_DATA_TYPE_INT32:
             return newSViv(entry_data_list->entry_data.int32);
+        case MMDB_DATA_TYPE_UINT16:
+            return newSVuv(entry_data_list->entry_data.uint16);
+        case MMDB_DATA_TYPE_UINT32:
+            return newSVuv(entry_data_list->entry_data.uint32);
+        case MMDB_DATA_TYPE_BOOLEAN:
+            return newSVuv(entry_data_list->entry_data.boolean);
+        case MMDB_DATA_TYPE_DOUBLE:
+            return newSVnv(entry_data_list->entry_data.double_value);
+        case MMDB_DATA_TYPE_FLOAT:
+            return newSVnv(entry_data_list->entry_data.float_value);
+        case MMDB_DATA_TYPE_UINT64:
+            return newSVuv(entry_data_list->entry_data.uint64);
         default:
             return newSViv(666);
     }
@@ -44,19 +58,20 @@ static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
 
 static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
 {
-    HV *hv          = newHV();
-    int map_size    = entry_data_list->entry_data.data_size;
+    HV *hv = newHV();
+    int size = entry_data_list->entry_data.data_size;
     entry_data_list = entry_data_list->next;
 
     uint i;
-    for (i = 0; i < map_size && entry_data_list; i++ ) {
+    for (i = 0; i < size && entry_data_list; i++ ) {
         char *key_source = (char *)entry_data_list->entry_data.utf8_string;
         int key_size     = entry_data_list->entry_data.data_size;
         char *key        = strndup(key_source, key_size);
         entry_data_list  = entry_data_list->next;
 
-        if (0 == key_size)
+        if (0 == key_size) {
             continue;
+        }
 
         SV *val = decode_entry_data_list(entry_data_list);
         (void)hv_store(hv, key, key_size, val, 0);
@@ -66,14 +81,29 @@ static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
 
 }
 
+static SV *decode_array(MMDB_entry_data_list_s *entry_data_list) {
+    AV *av = newAV();
+    int size = entry_data_list->entry_data.data_size;
+    entry_data_list = entry_data_list->next;
+
+    uint i;
+    for (i = 0; i < size && entry_data_list; i++ ) {
+        av_push(av, decode_entry_data_list(entry_data_list));
+        entry_data_list  = entry_data_list->next;
+    }
+    return newRV_noinc((SV *) av);
+}
+
+
 static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list)
 {
     SV *sv;
     int size = entry_data_list->entry_data.data_size;
     char *data = size ? (char *)entry_data_list->entry_data.utf8_string : "";
     sv = newSVpvn(data, size);
-    if (has_highbyte((U8*)data, size))
+    if (has_highbyte((U8 *)data, size)) {
         SvUTF8_on(sv);
+    }
     return sv;
 }
 
@@ -88,7 +118,7 @@ _open_mmdb(self, file, flags)
 
     CODE:
 
-        if ( file == NULL ) {
+        if (file == NULL) {
             croak("MaxMind::DB::Reader::XS File missing\n");
         }
         mmdb = (MMDB_s *)malloc(sizeof(MMDB_s));
