@@ -69,12 +69,12 @@ static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
         char *key        = strndup(key_source, key_size);
         entry_data_list  = entry_data_list->next;
 
-        if (0 == key_size) {
-            continue;
+        if (0 != key_size) {
+            val = decode_entry_data_list(entry_data_list);
+            (void)hv_store(hv, key, key_size, val, 0);
         }
 
-        val = decode_entry_data_list(entry_data_list);
-        (void)hv_store(hv, key, key_size, val, 0);
+        entry_data_list  = entry_data_list->next;
     }
 
     return newRV_noinc((SV *) hv);;

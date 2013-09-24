@@ -11,7 +11,8 @@ use MaxMind::DB::Reader::XS;
 
 
 my $iut = MaxMind::DB::Reader::XS->new(
-    file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-32.mmdb',
+    file => 'maxmind-db/test-data/GeoIP2-City-Test.mmdb',
+#    file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-32.mmdb',
 );
 
 print Dumper $iut->_raw_metadata($iut->_mmdb);
