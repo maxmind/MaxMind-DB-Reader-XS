@@ -62,8 +62,8 @@ static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
     int size = entry_data_list->entry_data.data_size;
     entry_data_list = entry_data_list->next;
 
-    uint i;
-    for (i = 0; i < size && entry_data_list; i++ ) {
+    for (uint i = 0; i < size && entry_data_list; i++ ) {
+        SV *val;
         char *key_source = (char *)entry_data_list->entry_data.utf8_string;
         int key_size     = entry_data_list->entry_data.data_size;
         char *key        = strndup(key_source, key_size);
@@ -73,7 +73,7 @@ static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
             continue;
         }
 
-        SV *val = decode_entry_data_list(entry_data_list);
+        val = decode_entry_data_list(entry_data_list);
         (void)hv_store(hv, key, key_size, val, 0);
     }
 
@@ -86,10 +86,9 @@ static SV *decode_array(MMDB_entry_data_list_s *entry_data_list) {
     int size = entry_data_list->entry_data.data_size;
     entry_data_list = entry_data_list->next;
 
-    uint i;
-    for (i = 0; i < size && entry_data_list; i++ ) {
+    for (uint i = 0; i < size && entry_data_list; i++ ) {
         av_push(av, decode_entry_data_list(entry_data_list));
-        entry_data_list  = entry_data_list->next;
+        entry_data_list = entry_data_list->next;
     }
     return newRV_noinc((SV *) av);
 }
@@ -115,6 +114,7 @@ _open_mmdb(self, file, flags)
     U32 flags;
     PREINIT:
         MMDB_s *mmdb;
+        uint16_t status;
 
     CODE:
 
@@ -122,7 +122,7 @@ _open_mmdb(self, file, flags)
             croak("MaxMind::DB::Reader::XS File missing\n");
         }
         mmdb = (MMDB_s *)malloc(sizeof(MMDB_s));
-        uint16_t status = MMDB_open(file, flags, mmdb);
+        status = MMDB_open(file, flags, mmdb);
      
         if (MMDB_SUCCESS != status) {
             free(mmdb);
@@ -149,8 +149,8 @@ _raw_metadata(self, mmdb)
         MMDB_s *mmdb
     PREINIT:
         SV *sv;
-    PPCODE:
         MMDB_entry_data_list_s *entry_data_list;
+    PPCODE:
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
         if (MMDB_SUCCESS != status) {
             croak("MaxMind::DB::Reader::XS Error getting metadata: %d", status);
@@ -159,5 +159,4 @@ _raw_metadata(self, mmdb)
         sv = decode_entry_data_list(entry_data_list);
 
         XPUSHs(sv_2mortal(sv));
-
 
