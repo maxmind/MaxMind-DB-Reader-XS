@@ -29,7 +29,6 @@ static int has_highbyte(const U8 *ptr, int size)
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
 {
-        printf("type=%d\n",entry_data_list->entry_data.type);
     switch (entry_data_list->entry_data.type) {
         case MMDB_DATA_TYPE_MAP:
             return decode_map(entry_data_list);

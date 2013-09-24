@@ -58,7 +58,7 @@ sub _build_mmdb {
     return $self->_open_mmdb( $self->file(), $self->_flags() );
 }
 
-sub _build_metadata {
+sub get_metadata {
     my $self = shift;
 
     my $raw = $self->_raw_metadata( $self->_mmdb() );
