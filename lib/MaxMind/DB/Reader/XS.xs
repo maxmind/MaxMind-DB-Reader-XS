@@ -14,10 +14,6 @@ extern "C" {
 #endif
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
-static SV *decode_map(MMDB_entry_data_list_s **entry_data_list);
-static SV *decode_array(MMDB_entry_data_list_s **entry_data_list);
-static SV *decode_utf8_string(MMDB_entry_data_list_s **entry_data_list);
-static SV *decode_simple_value(MMDB_entry_data_list_s **entry_data_list);
 
 static int has_highbyte(const U8 *ptr, int size)
 {
@@ -27,71 +23,6 @@ static int has_highbyte(const U8 *ptr, int size)
         }
     }
     return 0;
-}
-
-static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
-{
-    MMDB_entry_data_list_s *current = entry_data_list;
-    SV *sv = decode_entry_data_list(&current);
-    MMDB_free_entry_data_list(entry_data_list);
-    return sv;
-}
-
-static SV *decode_entry_data_list(MMDB_entry_data_list_s **current)
-{
-    switch ((*current)->entry_data.type) {
-        case MMDB_DATA_TYPE_MAP:
-            return decode_map(current);
-        case MMDB_DATA_TYPE_ARRAY:
-            return decode_array(current);
-        case MMDB_DATA_TYPE_UTF8_STRING:
-            return decode_utf8_string(current);
-        default:
-            return decode_simple_value(current);
-    }
-}
-
-static SV *decode_map(MMDB_entry_data_list_s **current)
-{
-    SV *val;
-    HV *hv = newHV();
-    int size = (*current)->entry_data.data_size;
-    *current = (*current)->next;
-
-    for (uint i = 0; i < size; i++ ) {
-        char *key    = (char *)(*current)->entry_data.utf8_string;
-        int key_size = (*current)->entry_data.data_size;
-        *current     = (*current)->next;
-        val          = decode_entry_data_list(current);
-        (void)hv_store(hv, key, key_size, val, 0);
-    }
-
-    return newRV_noinc((SV *) hv);
-}
-
-static SV *decode_array(MMDB_entry_data_list_s **current) {
-    AV *av = newAV();
-    int size = (*current)->entry_data.data_size;
-    *current = (*current)->next;
-
-    for (uint i = 0; i < size; i++ ) {
-        av_push(av, decode_entry_data_list(current));
-    }
-    return newRV_noinc((SV *) av);
-}
-
-
-static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
-{
-    SV *sv;
-    int size = (*current)->entry_data.data_size;
-    char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
-    sv = newSVpvn(data, size);
-    if (has_highbyte((U8 *)data, size)) {
-        SvUTF8_on(sv);
-    }
-    *current = (*current)->next;
-    return sv;
 }
 
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
@@ -127,6 +58,71 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
             );
     }
     *current = (*current)->next;
+    return sv;
+}
+
+static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
+{
+    SV *sv;
+    int size = (*current)->entry_data.data_size;
+    char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
+    sv = newSVpvn(data, size);
+    if (has_highbyte((U8 *)data, size)) {
+        SvUTF8_on(sv);
+    }
+    *current = (*current)->next;
+    return sv;
+}
+
+static SV *decode_array(MMDB_entry_data_list_s **current) {
+    AV *av = newAV();
+    int size = (*current)->entry_data.data_size;
+    *current = (*current)->next;
+
+    for (uint i = 0; i < size; i++ ) {
+        av_push(av, decode_entry_data_list(current));
+    }
+    return newRV_noinc((SV *) av);
+}
+
+static SV *decode_map(MMDB_entry_data_list_s **current)
+{
+    SV *val;
+    HV *hv = newHV();
+    int size = (*current)->entry_data.data_size;
+    *current = (*current)->next;
+
+    for (uint i = 0; i < size; i++ ) {
+        char *key    = (char *)(*current)->entry_data.utf8_string;
+        int key_size = (*current)->entry_data.data_size;
+        *current     = (*current)->next;
+        val          = decode_entry_data_list(current);
+        (void)hv_store(hv, key, key_size, val, 0);
+    }
+
+    return newRV_noinc((SV *) hv);
+}
+
+static SV *decode_entry_data_list(MMDB_entry_data_list_s **current)
+{
+    switch ((*current)->entry_data.type) {
+        case MMDB_DATA_TYPE_MAP:
+            return decode_map(current);
+        case MMDB_DATA_TYPE_ARRAY:
+            return decode_array(current);
+        case MMDB_DATA_TYPE_UTF8_STRING:
+            return decode_utf8_string(current);
+        default:
+            return decode_simple_value(current);
+    }
+}
+
+
+static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
+{
+    MMDB_entry_data_list_s *current = entry_data_list;
+    SV *sv = decode_entry_data_list(&current);
+    MMDB_free_entry_data_list(entry_data_list);
     return sv;
 }
 
