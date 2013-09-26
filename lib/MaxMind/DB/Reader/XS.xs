@@ -13,9 +13,11 @@ extern "C" {
 }
 #endif
 
-static SV *decode_map(MMDB_entry_data_list_s *entry_data_list);
-static SV *decode_array(MMDB_entry_data_list_s *entry_data_list);
-static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list);
+static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
+static SV *decode_map(MMDB_entry_data_list_s **entry_data_list);
+static SV *decode_array(MMDB_entry_data_list_s **entry_data_list);
+static SV *decode_utf8_string(MMDB_entry_data_list_s **entry_data_list);
+static SV *decode_simple_value(MMDB_entry_data_list_s **entry_data_list);
 
 static int has_highbyte(const U8 *ptr, int size)
 {
@@ -27,81 +29,104 @@ static int has_highbyte(const U8 *ptr, int size)
     return 0;
 }
 
-static SV *decode_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
+static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_list)
 {
-    switch (entry_data_list->entry_data.type) {
+    MMDB_entry_data_list_s *current = entry_data_list;
+    SV *sv = decode_entry_data_list(&current);
+    MMDB_free_entry_data_list(entry_data_list);
+    return sv;
+}
+
+static SV *decode_entry_data_list(MMDB_entry_data_list_s **current)
+{
+    switch ((*current)->entry_data.type) {
         case MMDB_DATA_TYPE_MAP:
-            return decode_map(entry_data_list);
+            return decode_map(current);
         case MMDB_DATA_TYPE_ARRAY:
-            return decode_array(entry_data_list);
+            return decode_array(current);
         case MMDB_DATA_TYPE_UTF8_STRING:
-            return decode_utf8_string(entry_data_list);
-        case MMDB_DATA_TYPE_INT32:
-            return newSViv(entry_data_list->entry_data.int32);
-        case MMDB_DATA_TYPE_UINT16:
-            return newSVuv(entry_data_list->entry_data.uint16);
-        case MMDB_DATA_TYPE_UINT32:
-            return newSVuv(entry_data_list->entry_data.uint32);
-        case MMDB_DATA_TYPE_BOOLEAN:
-            return newSVuv(entry_data_list->entry_data.boolean);
-        case MMDB_DATA_TYPE_DOUBLE:
-            return newSVnv(entry_data_list->entry_data.double_value);
-        case MMDB_DATA_TYPE_FLOAT:
-            return newSVnv(entry_data_list->entry_data.float_value);
-        case MMDB_DATA_TYPE_UINT64:
-            return newSVuv(entry_data_list->entry_data.uint64);
+            return decode_utf8_string(current);
         default:
-            return newSViv(666);
+            return decode_simple_value(current);
     }
 }
 
-static SV *decode_map(MMDB_entry_data_list_s *entry_data_list)
+static SV *decode_map(MMDB_entry_data_list_s **current)
 {
+    SV *val;
     HV *hv = newHV();
-    int size = entry_data_list->entry_data.data_size;
-    entry_data_list = entry_data_list->next;
+    int size = (*current)->entry_data.data_size;
+    *current = (*current)->next;
 
-    for (uint i = 0; i < size && entry_data_list; i++ ) {
-        SV *val;
-        char *key_source = (char *)entry_data_list->entry_data.utf8_string;
-        int key_size     = entry_data_list->entry_data.data_size;
-        char *key        = strndup(key_source, key_size);
-        entry_data_list  = entry_data_list->next;
-
-        if (0 != key_size) {
-            val = decode_entry_data_list(entry_data_list);
-            (void)hv_store(hv, key, key_size, val, 0);
-        }
-
-        entry_data_list  = entry_data_list->next;
+    for (uint i = 0; i < size; i++ ) {
+        char *key    = (char *)(*current)->entry_data.utf8_string;
+        int key_size = (*current)->entry_data.data_size;
+        *current     = (*current)->next;
+        val          = decode_entry_data_list(current);
+        (void)hv_store(hv, key, key_size, val, 0);
     }
 
-    return newRV_noinc((SV *) hv);;
-
+    return newRV_noinc((SV *) hv);
 }
 
-static SV *decode_array(MMDB_entry_data_list_s *entry_data_list) {
+static SV *decode_array(MMDB_entry_data_list_s **current) {
     AV *av = newAV();
-    int size = entry_data_list->entry_data.data_size;
-    entry_data_list = entry_data_list->next;
+    int size = (*current)->entry_data.data_size;
+    *current = (*current)->next;
 
-    for (uint i = 0; i < size && entry_data_list; i++ ) {
-        av_push(av, decode_entry_data_list(entry_data_list));
-        entry_data_list = entry_data_list->next;
+    for (uint i = 0; i < size; i++ ) {
+        av_push(av, decode_entry_data_list(current));
     }
     return newRV_noinc((SV *) av);
 }
 
 
-static SV *decode_utf8_string(MMDB_entry_data_list_s *entry_data_list)
+static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
 {
     SV *sv;
-    int size = entry_data_list->entry_data.data_size;
-    char *data = size ? (char *)entry_data_list->entry_data.utf8_string : "";
+    int size = (*current)->entry_data.data_size;
+    char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
     sv = newSVpvn(data, size);
     if (has_highbyte((U8 *)data, size)) {
         SvUTF8_on(sv);
     }
+    *current = (*current)->next;
+    return sv;
+}
+
+static SV *decode_simple_value(MMDB_entry_data_list_s **current)
+{
+    SV *sv;
+    MMDB_entry_data_s entry_data = (*current)->entry_data;
+    switch (entry_data.type) {
+        case MMDB_DATA_TYPE_INT32:
+            sv = newSViv(entry_data.int32);
+            break;
+        case MMDB_DATA_TYPE_UINT16:
+            sv = newSVuv(entry_data.uint16);
+            break;
+        case MMDB_DATA_TYPE_UINT32:
+            sv = newSVuv(entry_data.uint32);
+            break;
+        case MMDB_DATA_TYPE_BOOLEAN:
+            sv = newSVuv(entry_data.boolean);
+            break;
+        case MMDB_DATA_TYPE_DOUBLE:
+            sv = newSVnv(entry_data.double_value);
+            break;
+        case MMDB_DATA_TYPE_FLOAT:
+            sv = newSVnv(entry_data.float_value);
+            break;
+        case MMDB_DATA_TYPE_UINT64:
+            sv = newSVuv(entry_data.uint64);
+            break;
+        default:
+            croak(
+                "MaxMind::DB::Reader::XS Error decoding type %i",
+                entry_data.type
+            );
+    }
+    *current = (*current)->next;
     return sv;
 }
 
@@ -155,8 +180,7 @@ _raw_metadata(self, mmdb)
             croak("MaxMind::DB::Reader::XS Error getting metadata: %d", status);
         }
 
-        sv = decode_entry_data_list(entry_data_list);
-        MMDB_free_entry_data_list(entry_data_list);
+        sv = decode_and_free_entry_data_list(entry_data_list);
 
         XPUSHs(sv_2mortal(sv));
 
@@ -183,8 +207,7 @@ _lookup_address(self, mmdb, ip_address)
             if (MMDB_SUCCESS != entry_error) {
                 croak("MaxMind::DB::Reader::XS Get entry data error looking up %s", ip_address);
             }
-            sv = decode_entry_data_list(entry_data_list);
-            MMDB_free_entry_data_list(entry_data_list);
+            sv = decode_and_free_entry_data_list(entry_data_list);
         } else {
             sv = newSViv(0);
         }
