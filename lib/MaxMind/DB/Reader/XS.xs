@@ -40,7 +40,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
             sv = newSVuv(entry_data.uint32);
             break;
         case MMDB_DATA_TYPE_BOOLEAN:
-            sv = newSVuv(entry_data.boolean);
+            sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
             break;
         case MMDB_DATA_TYPE_DOUBLE:
             sv = newSVnv(entry_data.double_value);
@@ -205,7 +205,7 @@ _lookup_address(self, mmdb, ip_address)
             }
             sv = decode_and_free_entry_data_list(entry_data_list);
         } else {
-            sv = newSViv(0);
+            sv = &PL_sv_undef;
         }
 
         XPUSHs(sv_2mortal(sv));
