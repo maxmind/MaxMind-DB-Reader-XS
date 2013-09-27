@@ -1,3 +1,4 @@
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -7,11 +8,13 @@ extern "C" {
 #include "XSUB.h"
 #define NEED_newRV_noinc
 #include "ppport.h"
+#include <sys/socket.h>
 #include "maxminddb.h"
 
 #ifdef __cplusplus
 }
 #endif
+
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
 
@@ -128,6 +131,9 @@ static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_li
 
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
 
+
+
+
 MMDB_s *
 _open_mmdb(self, file, flags)
     char *file;
@@ -145,10 +151,11 @@ _open_mmdb(self, file, flags)
         status = MMDB_open(file, flags, mmdb);
      
         if (MMDB_SUCCESS != status) {
+            const char *error = MMDB_strerror(status);
             free(mmdb);
             croak(
-                "MaxMind::DB::Reader::XS Error opening database file (%s). Is this a valid MaxMind DB file?",
-                file
+                "MaxMind::DB::Reader::XS Error opening database file \"%s\"- %s",
+                file, error
             );
         }
 
@@ -173,8 +180,9 @@ _raw_metadata(self, mmdb)
     PPCODE:
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
         if (MMDB_SUCCESS != status) {
+            const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
-            croak("MaxMind::DB::Reader::XS Error getting metadata: %d", status);
+            croak("MaxMind::DB::Reader::XS Error getting metadata- %s", error);
         }
 
         sv = decode_and_free_entry_data_list(entry_data_list);
@@ -187,23 +195,35 @@ _lookup_address(self, mmdb, ip_address)
         char *ip_address
     PREINIT:
         SV *sv;
-        int gai_error, mmdb_error, entry_error;
+        int gai_status, mmdb_status, get_status;
         MMDB_lookup_result_s result;
         MMDB_entry_data_list_s *entry_data_list;
     PPCODE:
-        result = MMDB_lookup_string(mmdb, ip_address, &gai_error, &mmdb_error);
-        if (0 != gai_error) {
-            croak("MaxMind::DB::Reader::XS InvalidArgumentException: the value \"%s\" is not a valid IP address.", ip_address);
+        result = MMDB_lookup_string(mmdb, ip_address, &gai_status, &mmdb_status);
+        if (0 != gai_status) {
+            const char *gai_error = gai_strerror(gai_status);
+            croak
+                ("MaxMind::DB::Reader::XS Invalid IP address raised by \"%s\"- %s",
+                ip_address, gai_error
+            );
         }
-        if (MMDB_SUCCESS != mmdb_error) {
-            croak("MaxMind::DB::Reader::XS Error looking up %s", ip_address);
+        if (MMDB_SUCCESS != mmdb_status) {
+            const char *mmdb_error = MMDB_strerror(mmdb_status);
+            croak(
+                "MaxMind::DB::Reader::XS Error looking up IP address \"%s\"- ",
+                ip_address, mmdb_error
+            );
         }
 
         if (result.found_entry) {
-            entry_error = MMDB_get_entry_data_list(&result.entry, &entry_data_list);
-            if (MMDB_SUCCESS != entry_error) {
+            get_status = MMDB_get_entry_data_list(&result.entry, &entry_data_list);
+            if (MMDB_SUCCESS != get_status) {
+                const char *get_error = MMDB_strerror(get_status);
                 MMDB_free_entry_data_list(entry_data_list);
-                croak("MaxMind::DB::Reader::XS Get entry data error looking up %s", ip_address);
+                croak(
+                    "MaxMind::DB::Reader::XS Get entry data error looking up \"%s\"- %s",
+                    ip_address, get_error
+                );
             }
             sv = decode_and_free_entry_data_list(entry_data_list);
         } else {
