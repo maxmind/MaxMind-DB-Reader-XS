@@ -30,23 +30,23 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     SV *sv;
     MMDB_entry_data_s entry_data = (*current)->entry_data;
     switch (entry_data.type) {
-        case MMDB_DATA_TYPE_INT32:
-            sv = newSViv(entry_data.int32);
-            break;
-        case MMDB_DATA_TYPE_UINT16:
-            sv = newSVuv(entry_data.uint16);
-            break;
-        case MMDB_DATA_TYPE_UINT32:
-            sv = newSVuv(entry_data.uint32);
-            break;
         case MMDB_DATA_TYPE_BOOLEAN:
             sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
+            break;
+        case MMDB_DATA_TYPE_INT32:
+            sv = newSViv(entry_data.int32);
             break;
         case MMDB_DATA_TYPE_DOUBLE:
             sv = newSVnv(entry_data.double_value);
             break;
         case MMDB_DATA_TYPE_FLOAT:
             sv = newSVnv(entry_data.float_value);
+            break;
+        case MMDB_DATA_TYPE_UINT16:
+            sv = newSVuv(entry_data.uint16);
+            break;
+        case MMDB_DATA_TYPE_UINT32:
+            sv = newSVuv(entry_data.uint32);
             break;
         case MMDB_DATA_TYPE_UINT64:
             sv = newSVuv(entry_data.uint64);
@@ -173,6 +173,7 @@ _raw_metadata(self, mmdb)
     PPCODE:
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
         if (MMDB_SUCCESS != status) {
+            MMDB_free_entry_data_list(entry_data_list);
             croak("MaxMind::DB::Reader::XS Error getting metadata: %d", status);
         }
 
@@ -201,6 +202,7 @@ _lookup_address(self, mmdb, ip_address)
         if (result.found_entry) {
             entry_error = MMDB_get_entry_data_list(&result.entry, &entry_data_list);
             if (MMDB_SUCCESS != entry_error) {
+                MMDB_free_entry_data_list(entry_data_list);
                 croak("MaxMind::DB::Reader::XS Get entry data error looking up %s", ip_address);
             }
             sv = decode_and_free_entry_data_list(entry_data_list);
