@@ -14,6 +14,7 @@ around module_build_args => sub {
 
     my $args = $self->$orig(@_);
 
+    $args->{extra_compiler_flags} = ['-DMISSING_UINT128'];
     $args->{extra_linker_flags} = ['-lmaxminddb'];
 
     return $args;
