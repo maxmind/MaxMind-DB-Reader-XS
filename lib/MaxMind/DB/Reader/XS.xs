@@ -18,16 +18,6 @@ extern "C" {
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
 
-static int has_highbyte(const U8 *ptr, int size)
-{
-    while (--size >= 0) {
-        if (*ptr++ > 127) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
 {
     SV *sv;
@@ -70,9 +60,7 @@ static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
     int size = (*current)->entry_data.data_size;
     char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
     sv = newSVpvn(data, size);
-    if (has_highbyte((U8 *)data, size)) {
-        SvUTF8_on(sv);
-    }
+    SvUTF8_on(sv);
     *current = (*current)->next;
     return sv;
 }
@@ -129,9 +117,8 @@ static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_li
     return sv;
 }
 
+
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
-
-
 
 
 MMDB_s *
@@ -171,13 +158,12 @@ _close_mmdb(self, mmdb)
         MMDB_close(mmdb);
         free(mmdb);
 
-void
+SV *
 _raw_metadata(self, mmdb)
         MMDB_s *mmdb
     PREINIT:
-        SV *sv;
         MMDB_entry_data_list_s *entry_data_list;
-    PPCODE:
+    CODE:
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
         if (MMDB_SUCCESS != status) {
             const char *error = MMDB_strerror(status);
@@ -185,25 +171,24 @@ _raw_metadata(self, mmdb)
             croak("MaxMind::DB::Reader::XS Error getting metadata- %s", error);
         }
 
-        sv = decode_and_free_entry_data_list(entry_data_list);
+        RETVAL = decode_and_free_entry_data_list(entry_data_list);
+    OUTPUT:
+        RETVAL
 
-        XPUSHs(sv_2mortal(sv));
-
-void
+SV *
 _lookup_address(self, mmdb, ip_address)
         MMDB_s *mmdb
         char *ip_address
     PREINIT:
-        SV *sv;
         int gai_status, mmdb_status, get_status;
         MMDB_lookup_result_s result;
         MMDB_entry_data_list_s *entry_data_list;
-    PPCODE:
+    CODE:
         result = MMDB_lookup_string(mmdb, ip_address, &gai_status, &mmdb_status);
         if (0 != gai_status) {
             const char *gai_error = gai_strerror(gai_status);
             croak
-                ("MaxMind::DB::Reader::XS Invalid IP address raised by \"%s\"- %s",
+                ("MaxMind::DB::Reader::XS Lookup on invalid IP address \"%s\"- %s",
                 ip_address, gai_error
             );
         }
@@ -225,10 +210,10 @@ _lookup_address(self, mmdb, ip_address)
                     ip_address, get_error
                 );
             }
-            sv = decode_and_free_entry_data_list(entry_data_list);
+            RETVAL = decode_and_free_entry_data_list(entry_data_list);
         } else {
-            sv = &PL_sv_undef;
+            RETVAL = &PL_sv_undef;
         }
-
-        XPUSHs(sv_2mortal(sv));
+    OUTPUT:
+        RETVAL
 
