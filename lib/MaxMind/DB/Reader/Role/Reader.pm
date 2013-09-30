@@ -6,10 +6,18 @@ use namespace::autoclean;
 
 use Data::Validate::IP 0.16 qw( is_ipv4 is_ipv6 is_private_ipv4 is_private_ipv6 );
 use Net::Works::Address 0.12;
+use MaxMind::DB::Types qw( Metadata );
 
 use Moo::Role;
 
 use constant DEBUG => $ENV{MAXMIND_DB_READER_DEBUG};
+
+has metadata => (
+    is        => 'ro',
+    lazy      => 1,
+    isa       => Metadata,
+    builder   => '_build_metadata',
+);
 
 with 'MaxMind::DB::Role::Debugs';
 
