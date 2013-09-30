@@ -15,6 +15,15 @@ extern "C" {
 }
 #endif
 
+static int has_highbyte(const U8 * ptr, int size)
+{
+    while (--size >= 0) {
+        if (*ptr++ > 127) {
+            return 1;
+        }
+        return 0;
+    }
+}
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
 
@@ -60,7 +69,9 @@ static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
     int size = (*current)->entry_data.data_size;
     char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
     sv = newSVpvn(data, size);
-    SvUTF8_on(sv);
+    if (has_highbyte((const U8*)data, size)) {
+        SvUTF8_on(sv);
+    }
     *current = (*current)->next;
     return sv;
 }
