@@ -15,7 +15,6 @@ use File::Temp qw( tempdir );
 use Net::Works::Network;
 
 
-
 for my $record_size ( 24, 28, 32 ) {
     for my $file_type (qw( ipv4 mixed )) {
         _test_ipv4_lookups( $record_size, $file_type );
@@ -51,6 +50,17 @@ for my $record_size ( 24, 28, 32 ) {
             "exception when a private IP address ($private) is passed to record_for_address()"
         );
     }
+}
+
+{
+    my $filename = 'MaxMind-DB-test-ipv4-24.mmdb';
+    my $reader = MaxMind::DB::Reader::XS->new(
+        file => "maxmind-db/test-data/$filename" );
+    my $metadata = $reader->metadata;
+    $reader = undef;
+    is $metadata->description->{en},
+       'Test Database',
+       'strings still there after mmdb free';
 }
 
 done_testing();
