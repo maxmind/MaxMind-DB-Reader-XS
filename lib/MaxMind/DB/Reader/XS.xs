@@ -68,10 +68,9 @@ static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
 static SV *decode_array(MMDB_entry_data_list_s **current) {
     AV *av = newAV();
     int size = (*current)->entry_data.data_size;
-    uint i;
     *current = (*current)->next;
 
-    for (i = 0; i < size; i++ ) {
+    for (uint i = 0; i < size; i++ ) {
         av_push(av, decode_entry_data_list(current));
     }
     return newRV_noinc((SV *) av);
@@ -82,10 +81,9 @@ static SV *decode_map(MMDB_entry_data_list_s **current)
     SV *val;
     HV *hv = newHV();
     int size = (*current)->entry_data.data_size;
-    uint i;
     *current = (*current)->next;
 
-    for (i = 0; i < size; i++ ) {
+    for (uint i = 0; i < size; i++ ) {
         char *key    = (char *)(*current)->entry_data.utf8_string;
         int key_size = (*current)->entry_data.data_size;
         *current     = (*current)->next;
