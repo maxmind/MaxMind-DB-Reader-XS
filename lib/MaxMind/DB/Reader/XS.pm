@@ -6,7 +6,7 @@ use namespace::autoclean;
 
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
-use MaxMind::DB::Types qw( Int Str );
+use MaxMind::DB::Types qw( Int Str Metadata );
 
 use Moo;
 
@@ -27,6 +27,14 @@ has file => (
     isa      => Str,
     required => 1,
 );
+
+has metadata => (
+    is        => 'ro',
+    lazy      => 1,
+    isa       => Metadata,
+    builder   => '_build_metadata',
+);
+
 
 has _mmdb => (
     is        => 'ro',
@@ -58,7 +66,7 @@ sub _build_mmdb {
     return $self->_open_mmdb( $self->file(), $self->_flags() );
 }
 
-sub get_metadata {
+sub _build_metadata {
     my $self = shift;
 
     my $raw = $self->_raw_metadata( $self->_mmdb() );

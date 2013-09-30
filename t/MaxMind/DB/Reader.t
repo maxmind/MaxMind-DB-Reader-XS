@@ -7,12 +7,14 @@ use Test::More;
 
 use lib 't/lib';
 use Test::MaxMind::DB::Common::Util qw( standard_test_metadata );
-use Test::MaxMind::DB::Reader;
+
+#use Test::MaxMind::DB::Reader;
+use MaxMind::DB::Reader::XS;
 
 use File::Temp qw( tempdir );
 use Net::Works::Network;
 
-use MaxMind::DB::Reader;
+
 
 for my $record_size ( 24, 28, 32 ) {
     for my $file_type (qw( ipv4 mixed )) {
@@ -25,7 +27,7 @@ for my $record_size ( 24, 28, 32 ) {
 }
 
 {
-    my $reader = MaxMind::DB::Reader->new(
+    my $reader = MaxMind::DB::Reader::XS->new(
         file => 'maxmind-db/test-data/MaxMind-DB-test-mixed-24.mmdb' );
 
     like(
@@ -63,7 +65,7 @@ sub _test_ipv4_lookups {
         $record_size
     );
 
-    my $reader = MaxMind::DB::Reader->new(
+    my $reader = MaxMind::DB::Reader::XS->new(
         file => "maxmind-db/test-data/$filename" );
 
     my $ip_version = $file_type eq 'mixed' ? 6 :4;
@@ -129,7 +131,7 @@ sub _test_ipv6_lookups {
         $record_size
     );
 
-    my $reader = MaxMind::DB::Reader->new(
+    my $reader = MaxMind::DB::Reader::XS->new(
         file => "maxmind-db/test-data/$filename" );
 
     my @subnets = Net::Works::Network->range_as_subnets(

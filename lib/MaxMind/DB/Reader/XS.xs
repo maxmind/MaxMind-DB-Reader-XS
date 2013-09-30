@@ -130,7 +130,6 @@ _open_mmdb(self, file, flags)
         uint16_t status;
 
     CODE:
-
         if (file == NULL) {
             croak("MaxMind::DB::Reader::XS File missing\n");
         }
@@ -192,6 +191,7 @@ _lookup_address(self, mmdb, ip_address)
                 ip_address, gai_error
             );
         }
+
         if (MMDB_SUCCESS != mmdb_status) {
             const char *mmdb_error = MMDB_strerror(mmdb_status);
             croak(
@@ -214,6 +214,7 @@ _lookup_address(self, mmdb, ip_address)
         } else {
             RETVAL = &PL_sv_undef;
         }
+
     OUTPUT:
         RETVAL
 
