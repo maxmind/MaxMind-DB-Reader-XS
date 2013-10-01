@@ -42,7 +42,7 @@ has _flags => (
     is       => 'ro',
     isa      => Int,
     init_arg => undef,
-    default  => 2,
+    default  => 0,
 );
 
 sub _data_for_address {
