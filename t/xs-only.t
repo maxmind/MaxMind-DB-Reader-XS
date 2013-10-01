@@ -1,0 +1,41 @@
+use strict;
+use warnings;
+use autodie;
+
+use Test::Fatal;
+use Test::More;
+
+use lib 't/lib';
+use Test::MaxMind::DB::Reader;
+
+use MaxMind::DB::Reader;
+
+{
+    my $filename = 'MaxMind-DB-test-ipv4-24.mmdb';
+    my $reader   = MaxMind::DB::Reader->new(
+        file => "maxmind-db/test-data/$filename" );
+
+    isa_ok(
+        $reader, 'MaxMind::DB::Reader::XS',
+        'MaxMind::DB::Reader->new()'
+    );
+
+    my $metadata = $reader->metadata;
+    my $record   = $reader->record_for_address('1.1.1.32');
+
+    $reader = undef;
+
+    is_deeply(
+        $record,
+        { ip => '1.1.1.32' },
+        'string in entry data is still valid after mmdb free'
+    );
+
+    is(
+        $metadata->description->{en},
+        'Test Database',
+        'string from metadata is still valid after mmdb free'
+    );
+}
+
+done_testing();
