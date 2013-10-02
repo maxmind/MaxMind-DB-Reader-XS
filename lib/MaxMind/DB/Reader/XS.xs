@@ -6,8 +6,6 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#define NEED_newRV_noinc
-#include "ppport.h"
 #include <sys/socket.h>
 #include "maxminddb.h"
 
