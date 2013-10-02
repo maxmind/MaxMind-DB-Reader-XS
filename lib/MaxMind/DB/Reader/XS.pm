@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+use 5.010000;
+
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
 use MaxMind::DB::Types qw( Str Int );
