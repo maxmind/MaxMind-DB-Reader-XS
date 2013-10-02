@@ -1,4 +1,4 @@
-
+/* *INDENT-ON* */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -127,9 +127,9 @@ static SV *decode_and_free_entry_data_list(MMDB_entry_data_list_s *entry_data_li
     return sv;
 }
 
+/* *INDENT-OFF* */
 
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
-
 
 MMDB_s *
 _open_mmdb(self, file, flags)
@@ -158,7 +158,6 @@ _open_mmdb(self, file, flags)
         RETVAL = mmdb;
     OUTPUT:
         RETVAL
-
 
 void
 _close_mmdb(self, mmdb)
@@ -227,4 +226,3 @@ _lookup_address(self, mmdb, ip_address)
 
     OUTPUT:
         RETVAL
-
