@@ -12,7 +12,8 @@ use MaxMind::DB::Types qw( Str Int );
 
 use Moo;
 
-with 'MaxMind::DB::Reader::Role::Reader';
+with 'MaxMind::DB::Reader::Role::Reader',
+    'MaxMind::DB::Reader::Role::HasMetadata';
 
 use XSLoader;
 
