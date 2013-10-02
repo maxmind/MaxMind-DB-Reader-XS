@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use autodie qw( :all );
+
+use 5.01000;
+
+use File::Copy qw( copy );
+use File::Find::Rule;
+use File::pushd;
+use File::Temp qw( tempdir );
+
+my $branch = shift || 'master';
+
+my $tempdir = tempdir( CLEANUP => 1 );
+
+{
+    my $dir = pushd($tempdir);
+
+    system(
+        'git', 'clone',
+        'git://github.com/maxmind/MaxMind-DB-Reader-perl.git',
+        'pp'
+    );
+    $dir = pushd('pp');
+
+    system( 'git', 'checkout', $branch );
+}
+
+my $t_root = "$tempdir/pp/t";
+
+for my $file (File::Find::Rule->name(qr/\.t$/)->in($t_root)) {
+    open my $fh, '<', $file;
+    my $first_line = <$fh>;
+
+    next if $first_line =~ /^\# PP only/;
+
+    my $basename = $file =~ s{^\Q$t_root\E/}{}r;
+
+    copy( $file => "t/$basename" );
+}
