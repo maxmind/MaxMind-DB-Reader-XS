@@ -19,13 +19,11 @@ my $tempdir = tempdir( CLEANUP => 1 );
     my $dir = pushd($tempdir);
 
     system(
-        'git', 'clone',
+        'git',      'clone',
+        '--branch', $branch,
         'git://github.com/maxmind/MaxMind-DB-Reader-perl.git',
         'pp'
     );
-    $dir = pushd('pp');
-
-    system( 'git', 'checkout', $branch );
 }
 
 my $t_root = "$tempdir/pp/t";
