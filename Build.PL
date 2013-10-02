@@ -21,6 +21,6 @@ Module::Build->new(
     dist_version         => '42',
     license              => 'perl',
     recursive_test_files => 1,
-    extra_compiler_flags => [qw(-std=gnu99 -Wall -Wdeclaration-after-statement -g -DMISSING_UINT128)],
+    extra_compiler_flags => [qw(-std=c99 -Wall -Wdeclaration-after-statement -g -DMISSING_UINT128)],
     extra_linker_flags   => ['-lmaxminddb'],
 )->create_build_script();
