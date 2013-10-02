@@ -39,8 +39,8 @@ has _mmdb => (
     predicate => '_has_mmdb',
 );
 
-# XXX - making this private & hard coding this as 2 is obviously wrong -
-# eventually we need to expose the flag constants in Perl
+# XXX - making this private & hard coding this is obviously wrong - eventually
+# we need to expose the flag constants in Perl
 has _flags => (
     is       => 'ro',
     isa      => Int,
