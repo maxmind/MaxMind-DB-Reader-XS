@@ -19,8 +19,9 @@ static int has_highbyte(const U8 * ptr, int size)
         if (*ptr++ > 127) {
             return 1;
         }
-        return 0;
     }
+
+    return 0;
 }
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
