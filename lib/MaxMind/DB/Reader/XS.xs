@@ -240,7 +240,7 @@ __get_entry_data(self, mmdb, offset)
         MMDB_entry_data_list_s *entry_data_list;
     CODE:
         entry.mmdb = mmdb;
-        entry.offset = offset;
+        entry.offset = offset - mmdb->metadata.node_count;
 
         status = MMDB_get_entry_data_list(&entry, &entry_data_list);
         if (MMDB_SUCCESS != status) {
@@ -248,7 +248,7 @@ __get_entry_data(self, mmdb, offset)
             MMDB_free_entry_data_list(entry_data_list);
             croak(
                 "MaxMind::DB::Reader::XS - got entry data error looking at offset %i - %s",
-                offset, error
+                entry.offset, error
                 );
         }
         RETVAL = decode_and_free_entry_data_list(entry_data_list);
