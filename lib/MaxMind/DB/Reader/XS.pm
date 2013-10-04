@@ -61,7 +61,7 @@ sub _read_node {
 }
 
 sub _get_entry_data {
-    my $self   = shift;
+    my $self = shift;
 
     return $self->__get_entry_data( $self->_mmdb(), @_ );
 }
