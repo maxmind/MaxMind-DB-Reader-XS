@@ -55,6 +55,19 @@ sub _data_for_address {
     return $self->_lookup_address( $self->_mmdb(), $addr );
 }
 
+sub _read_node {
+    my $self = shift;
+
+    return $self->__read_node( $self->_mmdb(), @_ );
+}
+
+sub _get_entry_data {
+    my $self   = shift;
+    my $offset = shift;
+
+    return $self->_entry_data_for_offset( $self->_mmdb(), $offset );
+}
+
 sub _build_mmdb {
     my $self = shift;
     return $self->_open_mmdb( $self->file(), $self->_flags() );

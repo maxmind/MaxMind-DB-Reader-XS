@@ -119,7 +119,6 @@ static SV *decode_entry_data_list(MMDB_entry_data_list_s **current)
     }
 }
 
-
 static SV *decode_and_free_entry_data_list(
     MMDB_entry_data_list_s *entry_data_list)
 {
@@ -228,6 +227,50 @@ _lookup_address(self, mmdb, ip_address)
         } else {
             RETVAL = &PL_sv_undef;
         }
-
     OUTPUT:
         RETVAL
+
+SV *
+_entry_data_for_offset(self, mmdb, offset)
+        MMDB_s *mmdb
+        U32 offset
+    PREINIT:
+        MMDB_entry_s entry;
+        int get_status;
+        MMDB_entry_data_list_s *entry_data_list;
+    CODE:
+        entry.mmdb = mmdb;
+        entry.offset = offset;
+
+        get_status = MMDB_get_entry_data_list(&entry, &entry_data_list);
+        if (MMDB_SUCCESS != get_status) {
+            const char *get_error = MMDB_strerror(get_status);
+            MMDB_free_entry_data_list(entry_data_list);
+            croak(
+                "MaxMind::DB::Reader::XS - got entry data error looking at offset %i - %s",
+                offset, get_error
+                );
+        }
+        RETVAL = decode_and_free_entry_data_list(entry_data_list);
+    OUTPUT:
+        RETVAL
+
+SV *
+__read_node(self, mmdb, node_number)
+        MMDB_s *mmdb
+        U32 node_number
+    PREINIT:
+        MMDB_search_node_s node;
+        int status;
+    PPCODE:
+        status = MMDB_read_node(mmdb, node_number, &node);
+        if (MMDB_SUCCESS != status) {
+            const char *error = MMDB_strerror(status);
+            croak(
+                "MaxMind::DB::Reader::XS - got an error trying to read node %i - %s",
+                node_number, error
+                );
+        }
+        EXTEND(SP, 2);
+        mPUSHu(node.left_record);
+        mPUSHu(node.right_record);
