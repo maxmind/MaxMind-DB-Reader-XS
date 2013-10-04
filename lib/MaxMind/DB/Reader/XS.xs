@@ -188,7 +188,7 @@ _raw_metadata(self, mmdb)
         RETVAL
 
 SV *
-_lookup_address(self, mmdb, ip_address)
+__data_for_address(self, mmdb, ip_address)
         MMDB_s *mmdb
         char *ip_address
     PREINIT:
@@ -231,7 +231,7 @@ _lookup_address(self, mmdb, ip_address)
         RETVAL
 
 SV *
-_entry_data_for_offset(self, mmdb, offset)
+__get_entry_data(self, mmdb, offset)
         MMDB_s *mmdb
         U32 offset
     PREINIT:

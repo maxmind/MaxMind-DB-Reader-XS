@@ -50,9 +50,8 @@ has _flags => (
 
 sub _data_for_address {
     my $self = shift;
-    my $addr = shift;
 
-    return $self->_lookup_address( $self->_mmdb(), $addr );
+    return $self->__data_for_address( $self->_mmdb(), @_ );
 }
 
 sub _read_node {
@@ -63,13 +62,13 @@ sub _read_node {
 
 sub _get_entry_data {
     my $self   = shift;
-    my $offset = shift;
 
-    return $self->_entry_data_for_offset( $self->_mmdb(), $offset );
+    return $self->__get_entry_data( $self->_mmdb(), @_ );
 }
 
 sub _build_mmdb {
     my $self = shift;
+
     return $self->_open_mmdb( $self->file(), $self->_flags() );
 }
 
