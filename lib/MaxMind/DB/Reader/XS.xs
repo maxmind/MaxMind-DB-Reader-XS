@@ -236,19 +236,19 @@ __get_entry_data(self, mmdb, offset)
         U32 offset
     PREINIT:
         MMDB_entry_s entry;
-        int get_status;
+        int status;
         MMDB_entry_data_list_s *entry_data_list;
     CODE:
         entry.mmdb = mmdb;
         entry.offset = offset;
 
-        get_status = MMDB_get_entry_data_list(&entry, &entry_data_list);
-        if (MMDB_SUCCESS != get_status) {
-            const char *get_error = MMDB_strerror(get_status);
+        status = MMDB_get_entry_data_list(&entry, &entry_data_list);
+        if (MMDB_SUCCESS != status) {
+            const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
             croak(
                 "MaxMind::DB::Reader::XS - got entry data error looking at offset %i - %s",
-                offset, get_error
+                offset, error
                 );
         }
         RETVAL = decode_and_free_entry_data_list(entry_data_list);
