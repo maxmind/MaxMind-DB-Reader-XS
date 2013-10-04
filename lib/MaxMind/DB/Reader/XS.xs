@@ -154,7 +154,7 @@ _open_mmdb(self, file, flags)
             croak(
                 "MaxMind::DB::Reader::XS - error opening database file \"%s\"- %s",
                 file, error
-            );
+                );
         }
 
         RETVAL = mmdb;
@@ -178,7 +178,10 @@ _raw_metadata(self, mmdb)
         if (MMDB_SUCCESS != status) {
             const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
-            croak("MaxMind::DB::Reader::XS - error getting metadata- %s", error);
+            croak(
+                "MaxMind::DB::Reader::XS - error getting metadata- %s",
+                error
+                );
         }
 
         RETVAL = decode_and_free_entry_data_list(entry_data_list);
@@ -197,10 +200,10 @@ _lookup_address(self, mmdb, ip_address)
         result = MMDB_lookup_string(mmdb, ip_address, &gai_status, &mmdb_status);
         if (0 != gai_status) {
             const char *gai_error = gai_strerror(gai_status);
-            croak
-                ("MaxMind::DB::Reader::XS - lookup on invalid IP address \"%s\"- %s",
+            croak(
+                "MaxMind::DB::Reader::XS - lookup on invalid IP address \"%s\"- %s",
                 ip_address, gai_error
-            );
+                );
         }
 
         if (MMDB_SUCCESS != mmdb_status) {
@@ -208,7 +211,7 @@ _lookup_address(self, mmdb, ip_address)
             croak(
                 "MaxMind::DB::Reader::XS - error looking up IP address \"%s\"- ",
                 ip_address, mmdb_error
-            );
+                );
         }
 
         if (result.found_entry) {
@@ -219,7 +222,7 @@ _lookup_address(self, mmdb, ip_address)
                 croak(
                     "MaxMind::DB::Reader::XS - got entry data error looking up \"%s\"- %s",
                     ip_address, get_error
-                );
+                    );
             }
             RETVAL = decode_and_free_entry_data_list(entry_data_list);
         } else {
