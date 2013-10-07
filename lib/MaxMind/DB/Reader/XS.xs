@@ -267,7 +267,7 @@ __get_entry_data(self, mmdb, offset)
     OUTPUT:
         RETVAL
 
-SV *
+void
 __read_node(self, mmdb, node_number)
         MMDB_s *mmdb
         U32 node_number
