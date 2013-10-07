@@ -46,43 +46,32 @@ static SV *decode_bytes(MMDB_entry_data_s *entry_data)
 
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
 {
-    SV *sv;
     MMDB_entry_data_s entry_data = (*current)->entry_data;
     switch (entry_data.type) {
     case MMDB_DATA_TYPE_UTF8_STRING:
-        sv = decode_utf8_string(&entry_data);
-        break;
+        return decode_utf8_string(&entry_data);
     case MMDB_DATA_TYPE_DOUBLE:
-        sv = newSVnv(entry_data.double_value);
-        break;
+        return newSVnv(entry_data.double_value);
     case MMDB_DATA_TYPE_BYTES:
-        sv = decode_bytes(&entry_data);
-        break;
+        return decode_bytes(&entry_data);
     case MMDB_DATA_TYPE_FLOAT:
-        sv = newSVnv(entry_data.float_value);
-        break;
+        return newSVnv(entry_data.float_value);
     case MMDB_DATA_TYPE_UINT16:
-        sv = newSVuv(entry_data.uint16);
-        break;
+        return newSVuv(entry_data.uint16);
     case MMDB_DATA_TYPE_UINT32:
-        sv = newSVuv(entry_data.uint32);
-        break;
+        return newSVuv(entry_data.uint32);
     case MMDB_DATA_TYPE_INT32:
-        sv = newSViv(entry_data.int32);
-        break;
+        return newSViv(entry_data.int32);
     case MMDB_DATA_TYPE_UINT64:
-        sv = newSVu64(entry_data.uint64);
-        break;
+        return newSVu64(entry_data.uint64);
     case MMDB_DATA_TYPE_UINT128:
         /* We don't have the case where uint128 is a byte array since even the
          * pure Perl MaxMind::DB::Reader requires Math::Int128, which in turn
          * requires GCC 4.4+. Therefore we know that we have an int128 type
          * available if this code is compiling at all. */
-        sv = newSVu128(entry_data.uint128);
-        break;
+        return newSVu128(entry_data.uint128);
     case MMDB_DATA_TYPE_BOOLEAN:
-        sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
-        break;
+        return entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
     default:
         croak(
             "MaxMind::DB::Reader::XS - error decoding unknown type number %i",
@@ -90,7 +79,8 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
             );
     }
 
-    return sv;
+    // It shouldn't be possible to reach this.
+    return NULL;
 }
 
 static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
