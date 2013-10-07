@@ -24,22 +24,36 @@ static int has_highbyte(const U8 * ptr, int size)
     return 0;
 }
 
-static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
+static SV *decode_utf8_string(MMDB_entry_data_s *entry_data)
+{
+    int size = entry_data->data_size;
+    char *data = (char *)entry_data->utf8_string;
+    SV *sv = newSVpvn(data, size);
+    if (has_highbyte((const U8 *)data, size)) {
+        SvUTF8_on(sv);
+    }
+    return sv;
+}
+
+static SV *decode_bytes(MMDB_entry_data_s *entry_data)
+{
+    int size = entry_data->data_size;
+    char *data = (char *)entry_data->bytes;
+    return newSVpvn(data, size);
+}
 
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
 {
     SV *sv;
     MMDB_entry_data_s entry_data = (*current)->entry_data;
     switch (entry_data.type) {
-    case MMDB_DATA_TYPE_BOOLEAN:
-        sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
-        break;
-    case MMDB_DATA_TYPE_INT32:
-        sv = newSViv(entry_data.int32);
-        break;
+    case MMDB_DATA_TYPE_UTF8_STRING:
+        sv = decode_utf8_string(&entry_data);
     case MMDB_DATA_TYPE_DOUBLE:
         sv = newSVnv(entry_data.double_value);
         break;
+    case MMDB_DATA_TYPE_BYTES:
+        sv = decode_bytes(&entry_data);
     case MMDB_DATA_TYPE_FLOAT:
         sv = newSVnv(entry_data.float_value);
         break;
@@ -49,8 +63,18 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     case MMDB_DATA_TYPE_UINT32:
         sv = newSVuv(entry_data.uint32);
         break;
+    case MMDB_DATA_TYPE_INT32:
+        sv = newSViv(entry_data.int32);
+        break;
     case MMDB_DATA_TYPE_UINT64:
         sv = newSVuv(entry_data.uint64);
+        break;
+    case MMDB_DATA_TYPE_UINT128:
+        sv = newSVuv(666);
+//        sv = decode_uint128(&entry_data);
+        break;
+    case MMDB_DATA_TYPE_BOOLEAN:
+        sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
         break;
     default:
         croak(
@@ -62,18 +86,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     return sv;
 }
 
-static SV *decode_utf8_string(MMDB_entry_data_list_s **current)
-{
-    SV *sv;
-    int size = (*current)->entry_data.data_size;
-    char *data = size ? (char *)(*current)->entry_data.utf8_string : "";
-    sv = newSVpvn(data, size);
-    if (has_highbyte((const U8 *)data, size)) {
-        SvUTF8_on(sv);
-    }
-    *current = (*current)->next;
-    return sv;
-}
+static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
 
 static SV *decode_array(MMDB_entry_data_list_s **current)
 {
@@ -112,8 +125,6 @@ static SV *decode_entry_data_list(MMDB_entry_data_list_s **current)
         return decode_map(current);
     case MMDB_DATA_TYPE_ARRAY:
         return decode_array(current);
-    case MMDB_DATA_TYPE_UTF8_STRING:
-        return decode_utf8_string(current);
     default:
         return decode_simple_value(current);
     }
