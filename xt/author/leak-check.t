@@ -4,7 +4,7 @@ use warnings;
 use Test::LeakTrace;
 use Test::More 0.88;
 
-use MaxMind::DB::Reader;
+use MaxMind::DB::Reader 0.050000;
 
 my $reader = MaxMind::DB::Reader->new(
     file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-24.mmdb' );
