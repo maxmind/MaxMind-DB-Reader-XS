@@ -9,6 +9,10 @@ extern "C" {
 #include <sys/socket.h>
 #include "maxminddb.h"
 
+#define MATH_INT64_NATIVE_IF_AVAILABLE
+#include "perl_math_int64.h"
+#include "perl_math_int128.h"
+
 #ifdef __cplusplus
 }
 #endif
@@ -67,11 +71,10 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
         sv = newSViv(entry_data.int32);
         break;
     case MMDB_DATA_TYPE_UINT64:
-        sv = newSVuv(entry_data.uint64);
+        sv = newSVu64(entry_data.uint64);
         break;
     case MMDB_DATA_TYPE_UINT128:
-        sv = newSVuv(666);
-//        sv = decode_uint128(&entry_data);
+        sv = newSVu128(entry_data.uint128);
         break;
     case MMDB_DATA_TYPE_BOOLEAN:
         sv = entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
@@ -142,6 +145,10 @@ static SV *decode_and_free_entry_data_list(
 /* *INDENT-OFF* */
 
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
+
+BOOT:
+     PERL_MATH_INT64_LOAD_OR_CROAK;
+     PERL_MATH_INT128_LOAD_OR_CROAK;
 
 MMDB_s *
 _open_mmdb(self, file, flags)

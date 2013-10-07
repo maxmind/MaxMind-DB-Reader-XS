@@ -14,8 +14,9 @@ around module_build_args => sub {
 
     my $args = $self->$orig(@_);
 
+    $args->{c_source}             = 'c';
     $args->{extra_compiler_flags} = ['-std=c99'];
-    $args->{extra_linker_flags} = ['-lmaxminddb'];
+    $args->{extra_linker_flags}   = ['-lmaxminddb'];
 
     return $args;
 };
