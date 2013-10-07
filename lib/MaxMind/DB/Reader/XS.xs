@@ -54,7 +54,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
         break;
     default:
         croak(
-            "MaxMind::DB::Reader::XS - error decoding type %i",
+            "MaxMind::DB::Reader::XS - error decoding unknown type number %i",
             entry_data.type
             );
     }
