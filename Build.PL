@@ -27,9 +27,11 @@ my %mb_args = (
 Module::Build->new(%mb_args)->create_build_script();
 
 sub _mb_args {
-    if ( Dist::Zilla->VERSION() ) {
-        require Data::Dumper;
-        return ##{ ( my $args = Data::Dumper::Dumper( $plugin->module_build_args ) ) =~ s/\$VAR\d+ =//; '%{' . $args . '};' ##}
+    my $data = do { local $/; <DATA> };
+
+    if ( $data !~ /^\#/ ) {
+        my $args = eval $data;
+        return %{$args};
     }
     else {
         return (
@@ -41,3 +43,6 @@ sub _mb_args {
         );
     }
 }
+
+__DATA__
+##{ ( my $args = Data::Dumper::Dumper( $plugin->module_build_args ) ) =~ s/\$VAR\d+ =//; $args ##}
