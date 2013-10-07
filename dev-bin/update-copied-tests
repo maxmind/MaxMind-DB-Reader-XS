@@ -10,6 +10,7 @@ use File::Copy qw( copy );
 use File::Find::Rule;
 use File::pushd;
 use File::Temp qw( tempdir );
+use Path::Class qw( file );
 
 my $branch = shift || 'master';
 
@@ -28,13 +29,14 @@ my $tempdir = tempdir( CLEANUP => 1 );
 
 my $t_root = "$tempdir/pp/t";
 
-for my $file (File::Find::Rule->name(qr/\.t$/)->in($t_root)) {
+for my $file ( File::Find::Rule->name(qr/\.t$/)->in($t_root) ) {
     open my $fh, '<', $file;
     my $first_line = <$fh>;
 
     next if $first_line =~ /^\# PP only/;
 
-    my $basename = $file =~ s{^\Q$t_root\E/}{}r;
+    my $to_file = file( 't', $file =~ s{^\Q$t_root\E/}{}r );
 
-    copy( $file => "t/$basename" );
+    $to_file->dir()->mkpath( 0, 0755 );
+    copy( $file => $to_file );
 }
