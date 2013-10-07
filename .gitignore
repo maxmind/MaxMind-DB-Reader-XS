@@ -15,6 +15,7 @@ README
 \#*\#
 _build
 blib*
+config.log
 cover_db*
 lib/MaxMind/DB/Reader/XS.c
 lib/MaxMind/DB/Reader/XS.o

@@ -74,6 +74,10 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
         sv = newSVu64(entry_data.uint64);
         break;
     case MMDB_DATA_TYPE_UINT128:
+        /* We don't have the case where uint128 is a byte array since even the
+         * pure Perl MaxMind::DB::Reader requires Math::Int128, which in turn
+         * requires GCC 4.4+. Therefore we know that we have an int128 type
+         * available if this code is compiling at all. */
         sv = newSVu128(entry_data.uint128);
         break;
     case MMDB_DATA_TYPE_BOOLEAN:

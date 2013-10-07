@@ -1,28 +1,44 @@
 use strict;
 use warnings;
 
+use lib 'inc';
+
+use Config::AutoConf;
 use Module::Build;
 
-warn <<'EOF';
+unless ( Config::AutoConf->check_type('unsigned __int128') ) {
+    warn <<'EOF';
 
-  ********************************* WARNING **********************************
-
-  This module uses Dist::Zilla for development. This Build.PL will let you run
-  the tests, but you are encouraged to install Dist::Zilla and the needed
-  plugins if you intend on doing any serious hacking.
-
-  ****************************************************************************
+  It looks like your compiler doesn't support the "unsigned __int128"
+  type. This type is necessary to compile the MaxMind::DB::Reader::XS module.
 
 EOF
 
-Module::Build->new(
-    module_name          => 'MaxMind::DB::Reader::XS',
-    dist_abstract        => 'Whatever',
-    dist_version         => '42',
-    license              => 'perl',
-    recursive_test_files => 1,
-    c_source             => 'c',
+    exit 1;
+}
+
+my %mb_args = (
+    _mb_args(),
+    c_source => 'c',
     extra_compiler_flags =>
         [qw(-std=c99 -Wall -Wdeclaration-after-statement -g)],
     extra_linker_flags => ['-lmaxminddb'],
-)->create_build_script();
+);
+
+Module::Build->new(%mb_args)->create_build_script();
+
+sub _mb_args {
+    if ( Dist::Zilla->VERSION() ) {
+        require Data::Dumper;
+        return ##{ ( my $args = Data::Dumper::Dumper( $plugin->module_build_args ) ) =~ s/\$VAR\d+ =//; '%{' . $args . '};' ##}
+    }
+    else {
+        return (
+            module_name          => 'MaxMind::DB::Reader::XS',
+            dist_abstract        => 'Whatever',
+            dist_version         => '42',
+            license              => 'perl',
+            recursive_test_files => 1,
+        );
+    }
+}
