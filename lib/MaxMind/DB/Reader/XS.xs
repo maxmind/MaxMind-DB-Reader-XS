@@ -41,9 +41,7 @@ static SV *decode_utf8_string(MMDB_entry_data_s *entry_data)
 
 static SV *decode_bytes(MMDB_entry_data_s *entry_data)
 {
-    int size = entry_data->data_size;
-    char *data = (char *)entry_data->bytes;
-    return newSVpvn(data, size);
+    return newSVpvn((char *)entry_data->bytes, entry_data->data_size);
 }
 
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
@@ -53,11 +51,13 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     switch (entry_data.type) {
     case MMDB_DATA_TYPE_UTF8_STRING:
         sv = decode_utf8_string(&entry_data);
+        break;
     case MMDB_DATA_TYPE_DOUBLE:
         sv = newSVnv(entry_data.double_value);
         break;
     case MMDB_DATA_TYPE_BYTES:
         sv = decode_bytes(&entry_data);
+        break;
     case MMDB_DATA_TYPE_FLOAT:
         sv = newSVnv(entry_data.float_value);
         break;
@@ -89,7 +89,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
             entry_data.type
             );
     }
-    *current = (*current)->next;
+
     return sv;
 }
 
@@ -97,28 +97,28 @@ static SV *decode_entry_data_list(MMDB_entry_data_list_s **entry_data_list);
 
 static SV *decode_array(MMDB_entry_data_list_s **current)
 {
-    AV *av = newAV();
     int size = (*current)->entry_data.data_size;
-    *current = (*current)->next;
 
+    AV *av = newAV();
     for (uint i = 0; i < size; i++) {
+        *current = (*current)->next;
         av_push(av, decode_entry_data_list(current));
     }
+
     return newRV_noinc((SV *)av);
 }
 
 static SV *decode_map(MMDB_entry_data_list_s **current)
 {
-    SV *val;
-    HV *hv = newHV();
     int size = (*current)->entry_data.data_size;
-    *current = (*current)->next;
 
+    HV *hv = newHV();
     for (uint i = 0; i < size; i++) {
+        *current = (*current)->next;
         char *key = (char *)(*current)->entry_data.utf8_string;
         int key_size = (*current)->entry_data.data_size;
         *current = (*current)->next;
-        val = decode_entry_data_list(current);
+        SV *val = decode_entry_data_list(current);
         (void)hv_store(hv, key, key_size, val, 0);
     }
 
