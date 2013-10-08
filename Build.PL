@@ -29,11 +29,17 @@ EOF
     exit 1;
 }
 
-unless ( Config::AutoConf->check_type('unsigned __int128') ) {
+unless (
+    Config::AutoConf->check_type('unsigned __int128')
+    || Config::AutoConf->check_type(
+        'unsigned int __attribute__ ((__mode__ (TI)))')
+    ) {
+
     warn <<'EOF';
 
-  It looks like your compiler doesn't support the "unsigned __int128"
-  type. This type is necessary to compile the MaxMind::DB::Reader::XS module.
+  It looks like your compiler doesn't support the "unsigned __int128" or
+  "unsigned int __attribute__ ((__mode__ (TI)))" types. One of these types is
+  necessary to compile the MaxMind::DB::Reader::XS module.
 
 EOF
 
