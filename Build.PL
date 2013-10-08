@@ -6,6 +6,29 @@ use lib 'inc';
 use Config::AutoConf;
 use Module::Build;
 
+unless ( Config::AutoConf->check_lib('maxminddb', 'MMDB_lookup_string') ) {
+    warn <<'EOF';
+
+  It looks like you either don't have libmaxminddb installed or you have an
+  older version installed that doesn't define the MMDB_lookup_string
+  symbol. Please upgrade your libmaxminddb installation.
+
+EOF
+
+    exit 1;
+}
+
+unless ( Config::AutoConf->check_header('maxminddb_config.h') ) {
+    warn <<'EOF';
+
+  It looks like the version of libmaxminddb you installed did not provide a
+  maxminddb_config.h header. Please upgrade your libmaxminddb installation.
+
+EOF
+
+    exit 1;
+}
+
 unless ( Config::AutoConf->check_type('unsigned __int128') ) {
     warn <<'EOF';
 
@@ -15,6 +38,21 @@ unless ( Config::AutoConf->check_type('unsigned __int128') ) {
 EOF
 
     exit 1;
+}
+
+if (
+    Config::AutoConf->compute_int(
+        'MMDB_UINT128_IS_BYTE_ARRAY', undef, '#include <maxminddb_config.h>'
+    )
+    ) {
+
+    warn <<'EOF';
+
+  It looks like your installed libmaxminddb was compiled with a compiler that
+  doesn't support the "unsigned __int128" type. Please recompile it with your
+  current compiler, which does appear to support this type.
+
+EOF
 }
 
 my %mb_args = (
