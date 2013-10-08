@@ -6,6 +6,8 @@ extern "C" {
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#define NEED_newRV_noinc
+#include "ppport.h"
 #include <sys/socket.h>
 #include "maxminddb.h"
 
@@ -81,7 +83,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
             );
     }
 
-    // It shouldn't be possible to reach this.
+    /* It shouldn't be possible to reach this. */
     return NULL;
 }
 
