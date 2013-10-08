@@ -71,7 +71,9 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
          * type available if this code is compiling at all. */
         return newSVu128(entry_data.uint128);
     case MMDB_DATA_TYPE_BOOLEAN:
-        return entry_data.boolean ? &PL_sv_yes : &PL_sv_no;
+        /* Note to future coders - do not use PL_sv_yes, PL_sv_no, or bool_sv
+         * - these all produce read-only SVs */
+        return newSViv(entry_data.boolean);
     default:
         croak(
             "MaxMind::DB::Reader::XS - error decoding unknown type number %i",

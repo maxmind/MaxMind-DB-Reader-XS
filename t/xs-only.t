@@ -38,4 +38,18 @@ use MaxMind::DB::Reader;
     );
 }
 
+{
+    my $filename = 'MaxMind-DB-test-decoder.mmdb';
+    my $reader   = MaxMind::DB::Reader->new(
+        file => "maxmind-db/test-data/$filename" );
+
+    my $record = $reader->record_for_address('1.1.1.1');
+
+    is(
+        exception { $record->{boolean} = 'foo' },
+        undef,
+        'returned boolean values are not read-only'
+    );
+}
+
 done_testing();
