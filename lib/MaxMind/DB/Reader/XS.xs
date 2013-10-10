@@ -33,7 +33,7 @@ static int has_highbyte(const U8 * ptr, int size)
 static SV *decode_utf8_string(MMDB_entry_data_s *entry_data)
 {
     int size = entry_data->data_size;
-    char *data = (char *)entry_data->data.utf8_string;
+    char *data = (char *)entry_data->utf8_string;
     SV *sv = newSVpvn(data, size);
     if (has_highbyte((const U8 *)data, size)) {
         SvUTF8_on(sv);
@@ -43,7 +43,7 @@ static SV *decode_utf8_string(MMDB_entry_data_s *entry_data)
 
 static SV *decode_bytes(MMDB_entry_data_s *entry_data)
 {
-    return newSVpvn((char *)entry_data->data.bytes, entry_data->data_size);
+    return newSVpvn((char *)entry_data->bytes, entry_data->data_size);
 }
 
 static SV *decode_simple_value(MMDB_entry_data_list_s **current)
@@ -53,29 +53,29 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     case MMDB_DATA_TYPE_UTF8_STRING:
         return decode_utf8_string(&entry_data);
     case MMDB_DATA_TYPE_DOUBLE:
-        return newSVnv(entry_data.data.double_value);
+        return newSVnv(entry_data.double_value);
     case MMDB_DATA_TYPE_BYTES:
         return decode_bytes(&entry_data);
     case MMDB_DATA_TYPE_FLOAT:
-        return newSVnv(entry_data.data.float_value);
+        return newSVnv(entry_data.float_value);
     case MMDB_DATA_TYPE_UINT16:
-        return newSVuv(entry_data.data.uint16);
+        return newSVuv(entry_data.uint16);
     case MMDB_DATA_TYPE_UINT32:
-        return newSVuv(entry_data.data.uint32);
+        return newSVuv(entry_data.uint32);
     case MMDB_DATA_TYPE_INT32:
-        return newSViv(entry_data.data.int32);
+        return newSViv(entry_data.int32);
     case MMDB_DATA_TYPE_UINT64:
-        return newSVu64(entry_data.data.uint64);
+        return newSVu64(entry_data.uint64);
     case MMDB_DATA_TYPE_UINT128:
         /* We don't handle the case where uint128 is a byte array since even
          * the pure Perl MaxMind::DB::Reader requires Math::Int128, which in
          * turn requires GCC 4.4+. Therefore we know that we have an int128
          * type available if this code is compiling at all. */
-        return newSVu128(entry_data.data.uint128);
+        return newSVu128(entry_data.uint128);
     case MMDB_DATA_TYPE_BOOLEAN:
         /* Note to future coders - do not use PL_sv_yes, PL_sv_no, or bool_sv
          * - these all produce read-only SVs */
-        return newSViv(entry_data.data.boolean);
+        return newSViv(entry_data.boolean);
     default:
         croak(
             "MaxMind::DB::Reader::XS - error decoding unknown type number %i",
@@ -109,7 +109,7 @@ static SV *decode_map(MMDB_entry_data_list_s **current)
     HV *hv = newHV();
     for (uint i = 0; i < size; i++) {
         *current = (*current)->next;
-        char *key = (char *)(*current)->entry_data.data.utf8_string;
+        char *key = (char *)(*current)->entry_data.utf8_string;
         int key_size = (*current)->entry_data.data_size;
         *current = (*current)->next;
         SV *val = decode_entry_data_list(current);
