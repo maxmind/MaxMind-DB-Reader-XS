@@ -9,7 +9,7 @@ use Module::Build;
 my %mb_args = (
     _mb_args(),
     c_source             => 'c',
-    extra_compiler_flags => [qw(--std=c99 -fms-extensions -Wall -g)],
+    extra_compiler_flags => [qw(-std=c99 -fms-extensions -Wall -g)],
     extra_linker_flags   => ['-lmaxminddb'],
 );
 
