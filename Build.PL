@@ -6,14 +6,16 @@ use lib 'inc';
 use Config::AutoConf;
 use Module::Build;
 
-my %mb_args = (
+my $mb = Module::Build->new(
     _mb_args(),
-    c_source             => 'c',
-    extra_compiler_flags => [qw(-std=c99 -fms-extensions -Wall -g)],
-    extra_linker_flags   => ['-lmaxminddb'],
+    c_source => 'c',
 );
 
-my $mb = Module::Build->new(%mb_args);
+$mb->extra_compiler_flags(
+    @{ $mb->extra_compiler_flags },
+    qw(-std=c99 -fms-extensions -Wall -g)
+);
+$mb->extra_linker_flags( @{ $mb->extra_linker_flags }, '-lmaxminddb' );
 
 _check_c_prereqs($mb);
 
