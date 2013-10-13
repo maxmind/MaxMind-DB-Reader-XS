@@ -42,8 +42,14 @@ sub _mb_args {
 sub _check_c_prereqs {
     my $mb = shift;
 
+    my @include_dirs = map { my $dir = $_; $dir =~ s/^-I//; $dir }
+        grep { /^-I/ } @{ $mb->extra_compiler_flags() || [] };
     my @lib_dirs = grep { /^-L/ } @{ $mb->extra_linker_flags() || [] };
-    my $ac = Config::AutoConf->new( extra_link_flags => \@lib_dirs );
+
+    my $ac = Config::AutoConf->new(
+        extra_include_dirs => \@include_dirs,
+        extra_link_flags   => \@lib_dirs,
+    );
 
     unless ( $ac->check_lib( 'maxminddb', 'MMDB_lookup_string' ) ) {
         warn <<'EOF';
