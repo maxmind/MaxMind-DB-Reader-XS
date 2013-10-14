@@ -44,4 +44,3 @@ notifications:
       - dev@maxmind.com
     on_success: change
     on_failure: always
-
