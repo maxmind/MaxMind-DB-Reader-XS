@@ -216,7 +216,7 @@ __data_for_address(self, mmdb, ip_address)
         if (0 != gai_status) {
             const char *gai_error = gai_strerror(gai_status);
             croak(
-                "MaxMind::DB::Reader::XS - lookup on invalid IP address \"%s\"- %s",
+                "MaxMind::DB::Reader::XS - lookup on invalid IP address \"%s\" - %s",
                 ip_address, gai_error
                 );
         }
@@ -224,7 +224,7 @@ __data_for_address(self, mmdb, ip_address)
         if (MMDB_SUCCESS != mmdb_status) {
             const char *mmdb_error = MMDB_strerror(mmdb_status);
             croak(
-                "MaxMind::DB::Reader::XS - error looking up IP address \"%s\"- ",
+                "MaxMind::DB::Reader::XS - error looking up IP address \"%s\" - %s",
                 ip_address, mmdb_error
                 );
         }
@@ -235,7 +235,7 @@ __data_for_address(self, mmdb, ip_address)
                 const char *get_error = MMDB_strerror(get_status);
                 MMDB_free_entry_data_list(entry_data_list);
                 croak(
-                    "MaxMind::DB::Reader::XS - got entry data error looking up \"%s\"- %s",
+                    "MaxMind::DB::Reader::XS - got entry data error looking up \"%s\" - %s",
                     ip_address, get_error
                     );
             }
