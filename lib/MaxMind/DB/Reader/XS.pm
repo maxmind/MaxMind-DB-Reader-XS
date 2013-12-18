@@ -49,6 +49,8 @@ has _flags => (
     default  => 0,
 );
 
+sub BUILD { $_[0]->_mmdb }
+
 sub _data_for_address {
     my $self = shift;
 

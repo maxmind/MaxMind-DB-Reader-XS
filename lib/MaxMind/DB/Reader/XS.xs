@@ -158,7 +158,7 @@ _open_mmdb(self, file, flags)
 
     CODE:
         if (file == NULL) {
-            croak("MaxMind::DB::Reader::XS - no file passed to _open_mmdb()\n");
+            croak("MaxMind::DB::Reader::XS - No file passed to _open_mmdb()\n");
         }
         mmdb = (MMDB_s *)malloc(sizeof(MMDB_s));
         status = MMDB_open(file, flags, mmdb);
@@ -167,7 +167,7 @@ _open_mmdb(self, file, flags)
             const char *error = MMDB_strerror(status);
             free(mmdb);
             croak(
-                "MaxMind::DB::Reader::XS - error opening database file \"%s\"- %s",
+                "MaxMind::DB::Reader::XS - Error opening database file \"%s\": %s",
                 file, error
                 );
         }
@@ -194,7 +194,7 @@ _raw_metadata(self, mmdb)
             const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
             croak(
-                "MaxMind::DB::Reader::XS - error getting metadata- %s",
+                "MaxMind::DB::Reader::XS - Error getting metadata: %s",
                 error
                 );
         }
@@ -216,7 +216,7 @@ __data_for_address(self, mmdb, ip_address)
         if (0 != gai_status) {
             const char *gai_error = gai_strerror(gai_status);
             croak(
-                "MaxMind::DB::Reader::XS - lookup on invalid IP address \"%s\" - %s",
+                "MaxMind::DB::Reader::XS - Lookup on invalid IP address \"%s\": %s",
                 ip_address, gai_error
                 );
         }
@@ -224,7 +224,7 @@ __data_for_address(self, mmdb, ip_address)
         if (MMDB_SUCCESS != mmdb_status) {
             const char *mmdb_error = MMDB_strerror(mmdb_status);
             croak(
-                "MaxMind::DB::Reader::XS - error looking up IP address \"%s\" - %s",
+                "MaxMind::DB::Reader::XS - Error looking up IP address \"%s\": %s",
                 ip_address, mmdb_error
                 );
         }
@@ -235,7 +235,7 @@ __data_for_address(self, mmdb, ip_address)
                 const char *get_error = MMDB_strerror(get_status);
                 MMDB_free_entry_data_list(entry_data_list);
                 croak(
-                    "MaxMind::DB::Reader::XS - got entry data error looking up \"%s\" - %s",
+                    "MaxMind::DB::Reader::XS - Entry data error looking up \"%s\": %s",
                     ip_address, get_error
                     );
             }
@@ -263,7 +263,7 @@ __get_entry_data(self, mmdb, offset)
             const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
             croak(
-                "MaxMind::DB::Reader::XS - got entry data error looking at offset %i - %s",
+                "MaxMind::DB::Reader::XS - Entry data error looking at offset %i: %s",
                 entry.offset, error
                 );
         }
@@ -283,7 +283,7 @@ __read_node(self, mmdb, node_number)
         if (MMDB_SUCCESS != status) {
             const char *error = MMDB_strerror(status);
             croak(
-                "MaxMind::DB::Reader::XS - got an error trying to read node %i - %s",
+                "MaxMind::DB::Reader::XS - Error trying to read node %i: %s",
                 node_number, error
                 );
         }
