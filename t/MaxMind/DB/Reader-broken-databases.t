@@ -16,7 +16,7 @@ use MaxMind::DB::Reader;
         );
     like(
         exception { $reader->record_for_address('2001:220::') },
-        qr/got entry data error looking up "2001:220::" - The MaxMind DB file's data section contains bad data \(unknown data type or corrupt data\)/,
+        qr/The MaxMind DB file's data section contains bad data \(unknown data type or corrupt data\)/,
         'got expected error for broken doubles'
     );
 }
@@ -26,7 +26,7 @@ use MaxMind::DB::Reader;
             'maxmind-db/test-data/MaxMind-DB-test-broken-pointers-24.mmdb' );
     like(
         exception { $reader->record_for_address('1.1.1.32') },
-        qr/error looking up IP address "1.1.1.32" - The MaxMind DB file's search tree is corrupt at/,
+        qr/The MaxMind DB file's search tree is corrupt/,
         'received expected exception with broken search tree pointer'
     );
 }
@@ -36,27 +36,26 @@ use MaxMind::DB::Reader;
             'maxmind-db/test-data/MaxMind-DB-test-broken-pointers-24.mmdb' );
     like(
         exception { $reader->record_for_address('1.1.1.16') },
-        qr/got entry data error looking up "1.1.1.16" - The MaxMind DB file's data section contains bad data \(unknown data type or corrupt data\)/,
+        qr/The MaxMind DB file's data section contains bad data \(unknown data type or corrupt data\)/,
         'received expected exception with broken data pointer'
-        );
+    );
 }
 
 {    # test non-database
-    my $reader = MaxMind::DB::Reader->new( file => 'Changes' );
-
     like(
-        exception { $reader->record_for_address('1.1.1.16') },
-        qr/error opening database file "Changes"- The MaxMind DB file is in a format this library can't handle \(unknown record size or binary format version\)/,
+        exception { MaxMind::DB::Reader->new( file => 'Changes' ) },
+        qr/Error opening database file "Changes": The MaxMind DB file is in a format this library can't handle/,
         'expected exception with unknown file type'
     );
 }
 
 {    # test missing file
-    my $reader = MaxMind::DB::Reader->new( file => 'does/not/exist.mmdb' );
 
     like(
-        exception { $reader->record_for_address('1.1.1.1') },
-        qr/error opening database file "does\/not\/exist.mmdb"- Error opening the specified MaxMind DB file/,
+        exception {
+            MaxMind::DB::Reader->new( file => 'does/not/exist.mmdb' );
+        },
+        qr/Error opening database file "does\/not\/exist.mmdb"/,
         'expected exception with file that does not exist'
     );
 }
