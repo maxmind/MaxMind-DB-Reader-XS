@@ -167,7 +167,7 @@ _open_mmdb(self, file, flags)
             const char *error = MMDB_strerror(status);
             free(mmdb);
             croak(
-                "MaxMind::DB::Reader::XS - error opening database file \"%s\"- %s",
+                "MaxMind::DB::Reader::XS - error opening database file \"%s\" - %s",
                 file, error
                 );
         }
@@ -194,7 +194,7 @@ _raw_metadata(self, mmdb)
             const char *error = MMDB_strerror(status);
             MMDB_free_entry_data_list(entry_data_list);
             croak(
-                "MaxMind::DB::Reader::XS - error getting metadata- %s",
+                "MaxMind::DB::Reader::XS - error getting metadata - %s",
                 error
                 );
         }
