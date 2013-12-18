@@ -51,4 +51,14 @@ use MaxMind::DB::Reader;
     );
 }
 
+{    # test missing file
+    my $reader = MaxMind::DB::Reader->new( file => 'does/not/exist.mmdb' );
+
+    like(
+        exception { $reader->record_for_address('1.1.1.1') },
+        qr/error opening database file "does\/not\/exist.mmdb"- Error opening the specified MaxMind DB file/,
+        'expected exception with file that does not exist'
+    );
+}
+
 done_testing();
