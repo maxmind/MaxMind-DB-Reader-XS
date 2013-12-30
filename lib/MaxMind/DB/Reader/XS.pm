@@ -8,7 +8,7 @@ use 5.010000;
 
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
-use MaxMind::DB::Reader 0.050000;
+use MaxMind::DB::Reader 0.050002;
 use MaxMind::DB::Types qw( Str Int );
 
 use Moo;
