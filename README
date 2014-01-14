@@ -1,0 +1,20 @@
+NAME
+    MaxMind::DB::Reader::XS - Fast XS implementation of MaxMind DB reader
+
+VERSION
+    version 0.060002
+
+AUTHORS
+    *   Boris Zentner <bzentner@maxmind.com>
+
+    *   Dave Rolsky <drolsky@maxmind.com>
+
+    *   Ran Eilam <reilam@maxmind.com>
+
+COPYRIGHT AND LICENSE
+    This software is Copyright (c) 2014 by MaxMind, Inc..
+
+    This is free software, licensed under:
+
+      The Artistic License 2.0 (GPL Compatible)
+
