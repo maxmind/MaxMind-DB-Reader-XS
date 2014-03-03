@@ -132,6 +132,9 @@ __END__
 Simply installing this module causes L<MaxMind::DB::Reader> to use the XS
 implementation, which is much faster than the Perl implementation.
 
+The XS implementation links against the
+L<libmaxminddb|http://maxmind.github.io/libmaxminddb/> library.
+
 See L<MaxMind::DB::Reader> for API details.
 
 =head1 VERSIONING POLICY
