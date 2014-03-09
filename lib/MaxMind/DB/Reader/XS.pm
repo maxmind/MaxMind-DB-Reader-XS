@@ -118,3 +118,32 @@ __PACKAGE__->meta()->make_immutable();
 1;
 
 # ABSTRACT: Fast XS implementation of MaxMind DB reader
+
+__END__
+
+=head1 SYNOPSIS
+
+    my $reader = MaxMind::DB::Reader->new( file => 'path/to/database.mmdb' );
+
+    my $record = $reader->record_for_address('1.2.3.4');
+
+=head1 DESCRIPTION
+
+Simply installing this module causes L<MaxMind::DB::Reader> to use the XS
+implementation, which is much faster than the Perl implementation.
+
+The XS implementation links against the
+L<libmaxminddb|http://maxmind.github.io/libmaxminddb/> library.
+
+See L<MaxMind::DB::Reader> for API details.
+
+=head1 VERSIONING POLICY
+
+This module uses semantic versioning as described by
+L<http://semver.org/>. Version numbers can be read as X.YYYZZZ, where X is the
+major number, YYY is the minor number, and ZZZ is the patch number.
+
+=head1 SUPPORT
+
+Please report all issues with this code using the GitHub issue tracker at
+L<https://github.com/maxmind/MaxMind-DB-Reader-XS/issues>.
