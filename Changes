@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Added basic docs for this distro.
+
+
 0.060002 2013-12-30
 
 - Error messages should now be the same for the pure Perl and XS readers.
