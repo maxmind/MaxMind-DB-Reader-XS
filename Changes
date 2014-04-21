@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.060004 2014-04-21
+
 - Updated to latest tests from pure Perl reader. Fixes GH #3.
 
 
