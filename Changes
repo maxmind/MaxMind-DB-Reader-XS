@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Updated to latest tests from pure Perl reader. Fixes GH #3.
+
+
 0.060003 2014-03-10
 
 - Added basic docs for this distro.
