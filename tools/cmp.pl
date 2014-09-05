@@ -32,7 +32,8 @@ for my $ip (@ips) {
         print "reader and reader_xs results differ for $ip\n";
         print Dumper($r);
         print Dumper($rxs);
-    #    exit;
+
+        #    exit;
 
     }
 }

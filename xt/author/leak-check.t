@@ -12,7 +12,8 @@ my $reader = MaxMind::DB::Reader->new(
 my ( $record, $ref_to_record, $copy_of_record );
 no_leaks_ok {
     ( $record, $ref_to_record, $copy_of_record ) = get_record();
-} 'no leaks when getting a record';
+}
+'no leaks when getting a record';
 
 is_deeply(
     $record,
@@ -34,7 +35,8 @@ is_deeply(
 
 no_leaks_ok {
     undef $reader;
-} 'no leaks when destroying reader object';
+}
+'no leaks when destroying reader object';
 
 done_testing();
 

@@ -29,7 +29,7 @@ my $fast_reader_xs = MaxMind::DB::Reader::XS->open( $file, 2 ) or die;
 my ( $reader_idx, $reader_xs_idx, $fast_reader_xs_idx ) = ( 0, 0, 0 );
 
 print scalar(localtime), ' ', hostname, "\n";
-print "MaxMind::DB::Reader     ", $MaxMind::DB::Reader::VERSION, "\n";
+print "MaxMind::DB::Reader     ", $MaxMind::DB::Reader::VERSION,     "\n";
 print "MaxMind::DB::Reader::XS ", $MaxMind::DB::Reader::XS::VERSION, "\n";
 print "libmaxminddb            ", MaxMind::DB::Reader::XS->lib_version, "\n";
 
