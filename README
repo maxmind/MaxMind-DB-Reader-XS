@@ -2,7 +2,7 @@ NAME
     MaxMind::DB::Reader::XS - Fast XS implementation of MaxMind DB reader
 
 VERSION
-    version 0.060004
+    version 0.070000
 
 SYNOPSIS
         my $reader = MaxMind::DB::Reader->new( file => 'path/to/database.mmdb' );
