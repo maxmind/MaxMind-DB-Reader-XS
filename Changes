@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- An exception is no longer thrown when a private IP address is passed to
+  record_for_address. Instead a lookup will be done in the database, and
+  undef will be returned if there is no record for the IP.
+
+
 0.060004 2014-04-21
 
 - Updated to latest tests from pure Perl reader. Fixes GH #3.
