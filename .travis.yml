@@ -55,6 +55,6 @@ addons:
       name: "maxmind/MaxMind-DB-Reader-XS"
       description: "Build submitted via Travis CI"
     notification_email: oschwald@gmail.com
-    build_command_prepend: "dzil clean"
-    build_command:   "dzil test"
+    build_command_prepend: "perl Build.PL; ./Build clean"
+    build_command:   "./Build test"
     branch_pattern: .*coverity.*
