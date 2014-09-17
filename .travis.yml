@@ -48,3 +48,17 @@ notifications:
       - dev@maxmind.com
     on_success: change
     on_failure: always
+
+env:
+  global:
+   - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
+
+addons:
+  coverity_scan:
+    project:
+      name: "maxmind/MaxMind-DB-Reader-XS"
+      description: "Build submitted via Travis CI"
+    notification_email: oschwald@gmail.com
+    build_command_prepend: "dzil clean"
+    build_command:   "dzil test"
+    branch_pattern: .*coverity.*
