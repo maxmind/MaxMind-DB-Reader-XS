@@ -32,11 +32,11 @@ install:
   - "dzil listdeps --missing  | grep -v MaxMind::DB | cpanm --quiet --notest"
   - dzil install --install-command "cpanm --quiet --notest ."
   - cd ../..
-  - "dzil authordeps --missing | xargs -n 5 -P 10 cpanm --quiet --notest"
-  - "dzil listdeps --missing | grep -v MaxMind::DB | cpanm --quiet --notest"
+  - perl Build.PL
+  - ./Build clean
 
 script:
-  - dzil test --release
+  - ./Build test
 
 notifications:
   email:
