@@ -18,6 +18,7 @@ before_install:
   - make
   - sudo make install
   - sudo ldconfig
+  - cd ..
 
 install:
   - cpanm --quiet --notest --skip-satisfied Dist::Zilla Dist::Zilla::Plugin::PodWeaver Dist::Zilla::PluginBundle::ROKR Pod::Coverage::Moose Pod::Weaver::Section::Contributors Test::NoTabs Test::Spelling
@@ -26,12 +27,13 @@ install:
   - "dzil authordeps --missing | xargs -n 5 -P 10 cpanm --quiet --notest"
   - "dzil listdeps --missing  | grep -v MaxMind::DB | cpanm --quiet --notest"
   - dzil install --install-command "cpanm --quiet --notest ."
+  - cd ..
   - git clone --branch=master git://github.com/maxmind/MaxMind-DB-Reader-perl.git reader
   - cd reader
   - "dzil authordeps --missing | xargs -n 5 -P 10 cpanm --quiet --notest"
   - "dzil listdeps --missing  | grep -v MaxMind::DB | cpanm --quiet --notest"
   - dzil install --install-command "cpanm --quiet --notest ."
-  - cd ../..
+  - cd ..
   - perl Build.PL
   - ./Build clean
 
