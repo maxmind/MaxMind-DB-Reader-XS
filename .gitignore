@@ -1,6 +1,7 @@
 *.o
 .\#*
 .build
+.tidyall.d
 Build
 Debian_CPANTS.txt
 MANIFEST
