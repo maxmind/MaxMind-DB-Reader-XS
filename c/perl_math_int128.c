@@ -11,16 +11,27 @@
 #include "perl.h"
 #include "ppport.h"
 
-#if ((__GNUC__ == 4) && (__GNUC_MINOR__ < 6))
-
-/* workaround for gcc 4.4/4.5 - see http://gcc.gnu.org/gcc-4.4/changes.html */
-typedef int int128_t __attribute__ ((__mode__ (TI)));
-typedef unsigned int uint128_t __attribute__ ((__mode__ (TI)));
-
-#else
+/*
+ * Apparently clang supporting __int128 some time before defining
+ * __SIZEOF_INT128__.  Digging through their history is unhelpful, so I
+ * went by <https://gcc.gnu.org/ml/gcc-patches/2012-11/msg02197.html>.
+ */
+#if defined(__SIZEOF_INT128__) \
+ || (defined(__clang__) && (__clang_major__ * 100 + __clang_minor__ >= 302)) \
+ || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6))
 
 typedef __int128 int128_t;
 typedef unsigned __int128 uint128_t;
+
+#else
+
+/*
+ * workaround for gcc 4.4/4.5 - see http://gcc.gnu.org/gcc-4.4/changes.html
+ * Should also apply to any other compiler that survives Build.PL and
+ * doesn't hit the above.
+ */
+typedef int int128_t __attribute__ ((__mode__ (TI)));
+typedef unsigned int uint128_t __attribute__ ((__mode__ (TI)));
 
 #endif
 
