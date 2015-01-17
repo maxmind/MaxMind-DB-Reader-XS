@@ -11,8 +11,6 @@
 #include "perl.h"
 #include "ppport.h"
 
-#if ((LONGSIZE >= 8) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)))
-
 #if ((__GNUC__ == 4) && (__GNUC_MINOR__ < 6))
 
 /* workaround for gcc 4.4/4.5 - see http://gcc.gnu.org/gcc-4.4/changes.html */
@@ -112,17 +110,4 @@ perl_math_int128_load(int required_version) {
 
     return 1;
 }
-
-#else
-
-int
-perl_math_int128_load(int required_version) {
-    dTHX;
-    sv_setpv(ERRSV, "Unable to load Math::Int128 C API: your compiler does not support 128bit integers");
-    SvSETMAGIC(ERRSV);
-    return 0;
-}
-
-#endif
-
 
