@@ -20,13 +20,13 @@ use MaxMind::DB::Reader;
         'MaxMind::DB::Reader->new()'
     );
 
-    my $metadata = $reader->metadata;
-    my $record   = $reader->record_for_address('1.1.1.32');
+    my $metadata    = $reader->metadata;
+    my $mmdb_record = $reader->record_for_address('1.1.1.32');
 
     $reader = undef;
 
     is_deeply(
-        $record,
+        $mmdb_record,
         { ip => '1.1.1.32' },
         'string in entry data is still valid after mmdb free'
     );
@@ -43,10 +43,10 @@ use MaxMind::DB::Reader;
     my $reader   = MaxMind::DB::Reader->new(
         file => "maxmind-db/test-data/$filename" );
 
-    my $record = $reader->record_for_address('1.1.1.1');
+    my $mmdb_record = $reader->record_for_address('1.1.1.1');
 
     is(
-        exception { $record->{boolean} = 'foo' },
+        exception { $mmdb_record->{boolean} = 'foo' },
         undef,
         'returned boolean values are not read-only'
     );
