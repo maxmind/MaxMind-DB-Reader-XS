@@ -18,9 +18,22 @@ $mb->extra_compiler_flags(
 );
 $mb->extra_linker_flags( @{ $mb->extra_linker_flags }, '-lmaxminddb' );
 
+# This is done as part of $mb->create_build_script but we want to make sure
+# this is done even if _check_c_prereqs exits. The Build.PL can be run by
+# "cpanm --showdeps", which expects to get a MYMETA.json out of doing so.
+#
+# The travis-perl helpers use "cpanm --showdeps" to figure out what prereqs to
+# install. If we're running under Travis containers, we cannot find
+# libmaxminddb without additional arguments being passed to Build.PL (--lib
+# and --include). That means that without this call here the travis-perl
+# helpers don't see the full list of prereqs, and thus Travis runs fail. See
+# https://travis-ci.org/maxmind/MaxMind-DB-Reader-XS/jobs/69040768 for some
+# example output.
+$mb->create_mymeta;
+
 _check_c_prereqs($mb);
 
-$mb->create_build_script();
+$mb->create_build_script;
 
 sub _mb_args {
     my @libs;
@@ -59,10 +72,10 @@ sub _check_c_prereqs {
     my $mb = shift;
 
     my @include_dirs = map { my $dir = $_; $dir =~ s/^-I//; $dir }
-        grep { /^-I/ } @{ $mb->extra_compiler_flags() || [] };
+        grep { /^-I/ } @{ $mb->extra_compiler_flags || [] };
     push @include_dirs, @{ $mb->include_dirs };
 
-    my @lib_dirs = grep { /^-L/ } @{ $mb->extra_linker_flags() || [] };
+    my @lib_dirs = grep { /^-L/ } @{ $mb->extra_linker_flags || [] };
 
     my $ac = Config::AutoConf->new(
         extra_include_dirs => \@include_dirs,
