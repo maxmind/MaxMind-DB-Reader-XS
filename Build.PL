@@ -34,7 +34,6 @@ sub _mb_args {
         return (
             module_name          => 'MaxMind::DB::Reader::XS',
             dist_abstract        => 'Whatever',
-            dist_version         => '42',
             license              => 'perl',
             recursive_test_files => 1,
         );

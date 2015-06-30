@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '1.000001';
+
 use 5.010000;
 
 use Math::Int128 qw( uint128 );
@@ -18,13 +20,7 @@ with 'MaxMind::DB::Reader::Role::Reader',
 
 use XSLoader;
 
-XSLoader::load(
-    __PACKAGE__,
-    exists $MaxMind::DB::Reader::XS::{VERSION}
-        && ${ $MaxMind::DB::Reader::XS::{VERSION} }
-    ? ${ $MaxMind::DB::Reader::XS::{VERSION} }
-    : '42'
-);
+XSLoader::load( __PACKAGE__, $VERSION );
 
 has _mmdb => (
     is        => 'ro',
@@ -114,6 +110,8 @@ __PACKAGE__->meta()->make_immutable();
 # ABSTRACT: Fast XS implementation of MaxMind DB reader
 
 __END__
+
+=for Pod::Coverage BUILD DEMOLISH
 
 =head1 SYNOPSIS
 
