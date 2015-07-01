@@ -27,6 +27,7 @@ env:
     - RELEASE_TESTING=1
     - AUTHOR_TESTING=1
     - LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
+    - C_INCLUDE_PATH=$HOME/include
     - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
 before_install:
   - git submodule update --init --recursive
@@ -50,7 +51,7 @@ install:
 before_script:
   - coverage-setup
 script:
-  - perl Build.PL --include $HOME/include --lib $HOME/lib
+  - perl Build.PL
   - ./Build
   - prove -b -j$(test-jobs) $(test-files)
 notifications:
