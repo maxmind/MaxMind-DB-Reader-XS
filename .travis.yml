@@ -1,56 +1,66 @@
+---
+sudo: false
+addons:
+  apt:
+    packages:
+      - aspell
+      - aspell-en
 language: perl
-
 perl:
-  - "5.20"
-  - "5.18"
-  - "5.16"
-  - "5.14"
-  - "5.12"
-  - "5.10"
-
+  - blead
+  - dev
+  - '5.22'
+  - '5.20'
+  - '5.18'
+  - '5.16'
+  - '5.14'
+  - '5.12'
+  - '5.10'
+matrix:
+  allow_failures:
+    - perl: blead
+  include:
+    - env: COVERAGE=1
+      perl: '5.22'
+env:
+  global:
+    - RELEASE_TESTING=1
+    - AUTHOR_TESTING=1
+    - LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
+    - LIBRARY_PATH=$HOME/lib
+    - C_INCLUDE_PATH=$HOME/include
+    - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
 before_install:
-  - export AUTOMATED_TESTING=1 HARNESS_OPTIONS=j10:c HARNESS_TIMER=1 SKIP_POD_LINKCHECK=1
   - git submodule update --init --recursive
   - git clone --recursive git://github.com/maxmind/libmaxminddb
   - cd libmaxminddb
   - ./bootstrap
-  - ./configure
+  - ./configure --prefix=$HOME
   - make
-  - sudo make install
-  - sudo ldconfig
+  - make install
+  - ldconfig -v -n $HOME/lib
   - cd ..
-
+  - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+  - source ~/travis-perl-helpers/init
+  - build-perl
+  - perl -V
+  - build-dist
+  - cd $BUILD_DIR
 install:
-  - cpanm --quiet --notest --skip-satisfied Dist::Zilla Dist::Zilla::Plugin::PodWeaver Dist::Zilla::PluginBundle::ROKR Pod::Coverage::Moose Pod::Weaver::Section::Contributors Test::NoTabs Test::Spelling
-  - git clone --branch=master git://github.com/maxmind/MaxMind-DB-Common-perl.git common
-  - cd common
-  - "dzil authordeps --missing | xargs -n 5 -P 10 cpanm --quiet --notest"
-  - "dzil listdeps --missing  | grep -v MaxMind::DB | cpanm --quiet --notest"
-  - dzil install --install-command "cpanm --quiet --notest ."
-  - cd ..
-  - git clone --branch=master git://github.com/maxmind/MaxMind-DB-Reader-perl.git reader
-  - cd reader
-  - "dzil authordeps --missing | xargs -n 5 -P 10 cpanm --quiet --notest"
-  - "dzil listdeps --missing  | grep -v MaxMind::DB | cpanm --quiet --notest"
-  - dzil install --install-command "cpanm --quiet --notest ."
-  - cd ..
-  - perl Build.PL
-  - ./Build clean
-
+  - cpan-install --deps
+  - cpan-install --coverage
+before_script:
+  - coverage-setup
 script:
-  - ./Build test
-
+  - perl Build.PL
+  - ./Build
+  - prove -b -j$(test-jobs) $(test-files)
 notifications:
   email:
     recipients:
       - dev@maxmind.com
     on_success: change
     on_failure: always
-
-env:
-  global:
-   - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
-
 addons:
   coverity_scan:
     project:

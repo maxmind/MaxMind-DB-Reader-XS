@@ -4,6 +4,7 @@ use warnings;
 use lib 'inc';
 
 use Config::AutoConf;
+use Getopt::Long;
 use Module::Build;
 
 my $mb = Module::Build->new(
@@ -19,24 +20,37 @@ $mb->extra_linker_flags( @{ $mb->extra_linker_flags }, '-lmaxminddb' );
 
 _check_c_prereqs($mb);
 
-$mb->create_build_script();
+$mb->create_build_script;
 
 sub _mb_args {
+    my @libs;
+    my @includes;
+
+    GetOptions(
+        'lib:s@'     => \@libs,
+        'include:s@' => \@includes,
+    );
+
+    my %extra = (
+        extra_linker_flags => [ map { '-L' . $_ } @libs ],
+        include_dirs       => \@includes,
+    );
+
     # This is a funky way of allowing this code to run stand-alone and as a
     # template to be processes by Dist::Zilla::Plugin::ModuleBuild::Custom
     my $data = do { local $/; <DATA> };
 
     if ( $data !~ /^\#/ ) {
         my $args = eval $data;
-        return %{$args};
+        return ( %{$args}, %extra );
     }
     else {
         return (
             module_name          => 'MaxMind::DB::Reader::XS',
             dist_abstract        => 'Whatever',
-            dist_version         => '42',
             license              => 'perl',
             recursive_test_files => 1,
+            %extra,
         );
     }
 }
@@ -45,8 +59,10 @@ sub _check_c_prereqs {
     my $mb = shift;
 
     my @include_dirs = map { my $dir = $_; $dir =~ s/^-I//; $dir }
-        grep { /^-I/ } @{ $mb->extra_compiler_flags() || [] };
-    my @lib_dirs = grep { /^-L/ } @{ $mb->extra_linker_flags() || [] };
+        grep { /^-I/ } @{ $mb->extra_compiler_flags || [] };
+    push @include_dirs, @{ $mb->include_dirs };
+
+    my @lib_dirs = grep { /^-L/ } @{ $mb->extra_linker_flags || [] };
 
     my $ac = Config::AutoConf->new(
         extra_include_dirs => \@include_dirs,

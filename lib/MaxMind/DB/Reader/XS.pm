@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
+our $VERSION = '1.000001';
+
 use 5.010000;
 
 use Math::Int128 qw( uint128 );
@@ -18,13 +20,9 @@ with 'MaxMind::DB::Reader::Role::Reader',
 
 use XSLoader;
 
-XSLoader::load(
-    __PACKAGE__,
-    exists $MaxMind::DB::Reader::XS::{VERSION}
-        && ${ $MaxMind::DB::Reader::XS::{VERSION} }
-    ? ${ $MaxMind::DB::Reader::XS::{VERSION} }
-    : '42'
-);
+## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
+XSLoader::load( __PACKAGE__, $VERSION );
+## use critic
 
 has _mmdb => (
     is        => 'ro',
@@ -45,6 +43,7 @@ has _flags => (
 
 sub BUILD { $_[0]->_mmdb }
 
+## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub _data_for_address {
     my $self = shift;
 
@@ -77,15 +76,6 @@ sub _build_metadata {
     return MaxMind::DB::Metadata->new($raw);
 }
 
-sub DEMOLISH {
-    my $self = shift;
-
-    $self->_close_mmdb( $self->_mmdb() )
-        if $self->_has_mmdb();
-
-    return;
-}
-
 sub _decode_bigint {
     my $buffer = shift;
 
@@ -98,6 +88,7 @@ sub _decode_bigint {
 
     return $int;
 }
+## use critic
 
 # Copied from MaxMind::DB::Reader::Decoder
 sub _zero_pad_left {
@@ -107,6 +98,15 @@ sub _zero_pad_left {
     return ( "\x00" x ( $desired_length - length($content) ) ) . $content;
 }
 
+sub DEMOLISH {
+    my $self = shift;
+
+    $self->_close_mmdb( $self->_mmdb() )
+        if $self->_has_mmdb();
+
+    return;
+}
+
 __PACKAGE__->meta()->make_immutable();
 
 1;
@@ -114,6 +114,8 @@ __PACKAGE__->meta()->make_immutable();
 # ABSTRACT: Fast XS implementation of MaxMind DB reader
 
 __END__
+
+=for Pod::Coverage BUILD DEMOLISH
 
 =head1 SYNOPSIS
 
