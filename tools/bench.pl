@@ -8,8 +8,7 @@ our $VERSION = '0.01';
 
 my @ips = map {
     join '.',
-        map { int( rand(256) ) }
-        1 .. 4
+        map { int( rand(256) ) } 1 .. 4
 } ( 1 .. 5_000 );
 my $max_ips = $#ips;
 
