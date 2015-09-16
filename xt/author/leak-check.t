@@ -6,10 +6,10 @@ use Test::More 0.88;
 
 use MaxMind::DB::Reader 0.050000;
 
-{
-    my $reader = MaxMind::DB::Reader->new(
-        file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-24.mmdb' );
+my $reader = MaxMind::DB::Reader->new(
+    file => 'maxmind-db/test-data/MaxMind-DB-test-ipv4-24.mmdb' );
 
+{
     my ( $orig, $ref_to_orig, $copy_of_orig );
     no_leaks_ok {
         ( $orig, $ref_to_orig, $copy_of_orig ) = get_record();
