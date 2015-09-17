@@ -139,6 +139,13 @@ This module uses semantic versioning as described by
 L<http://semver.org/>. Version numbers can be read as X.YYYZZZ, where X is the
 major number, YYY is the minor number, and ZZZ is the patch number.
 
+=head1 MAC OS X SUPPORT
+
+If you're running into install errors under Mac OS X, you may need to force a
+build of the 64 bit binary. For example, if you're installing via C<cpanm>:
+
+    ARCHFLAGS="-arch x86_64" cpanm MaxMind::DB::Reader::XS
+
 =head1 SUPPORT
 
 Please report all issues with this code using the GitHub issue tracker at
