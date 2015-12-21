@@ -6,11 +6,10 @@ use Test::More;
 
 use MaxMind::DB::Reader::XS;
 
+ok( 1, 'no-op' );
+
 ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
-ok(
-    1,
-    'libmaxminddb version is '
-        . MaxMind::DB::Reader::XS::libmaxminddb_version()
-);
+diag( 'libmaxminddb version is '
+        . MaxMind::DB::Reader::XS::libmaxminddb_version() );
 
 done_testing();
