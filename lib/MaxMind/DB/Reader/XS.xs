@@ -290,3 +290,11 @@ __read_node(self, mmdb, node_number)
         EXTEND(SP, 2);
         mPUSHu(node.left_record);
         mPUSHu(node.right_record);
+
+SV *
+libmaxminddb_version()
+    CODE:
+        const char *v = MMDB_lib_version();
+        RETVAL = newSVpv(v, strlen(v));
+    OUTPUT:
+        RETVAL
