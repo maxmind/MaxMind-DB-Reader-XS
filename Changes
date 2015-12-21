@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Fixed test failures with the latest version of libmaxminddb (1.1.2).
+
+
 1.000000 2014-09-22
 
 - First production release.
