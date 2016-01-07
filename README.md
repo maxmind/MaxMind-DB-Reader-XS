@@ -4,7 +4,7 @@ MaxMind::DB::Reader::XS - Fast XS implementation of MaxMind DB reader
 
 # VERSION
 
-version 1.000001
+version 1.000002
 
 # SYNOPSIS
 
@@ -53,7 +53,7 @@ Please report all issues with this code using the GitHub issue tracker at
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2015 by MaxMind, Inc..
+This software is Copyright (c) 2016 by MaxMind, Inc..
 
 This is free software, licensed under:
 

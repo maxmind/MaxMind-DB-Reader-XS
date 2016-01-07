@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000002 2016-01-07
+
 - Fixed test failures with the latest version of libmaxminddb (1.1.3).
 
 
