@@ -5,20 +5,38 @@ addons:
     packages:
       - aspell
       - aspell-en
+  coverity_scan:
+    project:
+      name: "maxmind/MaxMind-DB-Reader-XS"
+      description: "Build submitted via Travis CI"
+    notification_email: dev-ci@maxmind.com
+    build_command_prepend: "perl Build.PL; ./Build clean"
+    build_command:   "./Build test"
+    branch_pattern: .*coverity.*
 language: perl
 perl:
   - blead
+  - blead-thr
   - dev
-  - '5.22'
-  - '5.20'
-  - '5.18'
-  - '5.16'
-  - '5.14'
-  - '5.12'
-  - '5.10'
+  - dev-thr
+  - 5.22.0
+  - 5.22.0-thr
+  - 5.20.2
+  - 5.20.2-thr
+  - 5.18.3
+  - 5.18.3-thr
+  - 5.16.3
+  - 5.16.3-thr
+  - 5.14.4
+  - 5.14.4-thr
+  - 5.12.5
+  - 5.12.5-thr
+  - 5.10.1
+  - 5.10.1-thr
 matrix:
   allow_failures:
     - perl: blead
+    - perl: blead-thr
   include:
     - env: COVERAGE=1
       perl: '5.22'
@@ -29,7 +47,7 @@ env:
     - LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
     - LIBRARY_PATH=$HOME/lib
     - C_INCLUDE_PATH=$HOME/include
-    - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
+    - secure: FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8=
 before_install:
   - git submodule update --init --recursive
   - git clone --recursive git://github.com/maxmind/libmaxminddb
@@ -57,16 +75,10 @@ script:
   - prove -b -j$(test-jobs) $(test-files)
 notifications:
   email:
+    on_failure: always
+    on_success: change
     recipients:
       - dev-ci@maxmind.com
-    on_success: change
-    on_failure: always
-addons:
-  coverity_scan:
-    project:
-      name: "maxmind/MaxMind-DB-Reader-XS"
-      description: "Build submitted via Travis CI"
-    notification_email: dev-ci@maxmind.com
-    build_command_prepend: "perl Build.PL; ./Build clean"
-    build_command:   "./Build test"
-    branch_pattern: .*coverity.*
+  slack:
+    rooms:
+      secure: "d6u+JI5GPH4G8cnnTKFzQG+2+K7RibioN9U85A6l5HUqnZX7cPWTHC748dXME1BOGBJo9dEwMpDhaTcciUG/7xBw/jGSnDnrSP5Ggi6oCTwyHcAQa+lS7JkcHAndJFgmKFqx8h3QfkSmY0/MY+nBJfZLo12RJNPZaapM+kbH/Bs=\n"
