@@ -170,8 +170,6 @@ static void call_node_callback(SV *node_callback, uint32_t node_num,
 
     call_sv(node_callback, G_VOID);
 
-    SPAGAIN;
-    PUTBACK;
     FREETMPS;
     LEAVE;
 
@@ -214,8 +212,6 @@ static void call_data_callback(MMDB_s *mmdb, SV *data_callback,
 
     call_sv(data_callback, G_VOID);
 
-    SPAGAIN;
-    PUTBACK;
     FREETMPS;
     LEAVE;
 
