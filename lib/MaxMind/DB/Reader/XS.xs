@@ -218,7 +218,7 @@ static void call_data_callback(MMDB_s *mmdb, SV *data_callback,
     return;
 }
 
-static void __iterate_search_tree(MMDB_s *mmdb, SV *data_callback,
+static void iterate_search_nodes(MMDB_s *mmdb, SV *data_callback,
                                   SV *node_callback, uint32_t node_num,
                                   mmdb_uint128_t ipnum,
                                   int depth,
@@ -264,7 +264,7 @@ static void iterate_record_entry(MMDB_s *mmdb, SV *data_callback,
             "MaxMind::DB::Reader::XS - Invalid record when reading node"
             );
     case MMDB_RECORD_TYPE_SEARCH_NODE:
-        __iterate_search_tree(mmdb, data_callback, node_callback, record,
+        iterate_search_nodes(mmdb, data_callback, node_callback, record,
                               ipnum, depth + 1, max_depth);
         return;
     case  MMDB_RECORD_TYPE_EMPTY:
@@ -401,7 +401,7 @@ _iterate_search_tree(self, mmdb, data_callback, node_callback)
         max_depth = mmdb->metadata.ip_version == 6 ? 128 : 32;
         mmdb_uint128_t ipnum = 0;
 
-        __iterate_search_tree(mmdb, data_callback, node_callback, node_num,
+        iterate_search_nodes(mmdb, data_callback, node_callback, node_num,
             ipnum, depth, max_depth);
 
 void
