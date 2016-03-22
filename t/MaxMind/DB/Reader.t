@@ -130,6 +130,17 @@ SKIP:
         \@networks,
         \@expect_data,
         '$reader->iterate_search_tree() finds all the networks in the database'
+    ) or diag explain \@networks;
+}
+
+{
+    my $reader = MaxMind::DB::Reader->new(
+        file => 'maxmind-db/test-data/MaxMind-DB-test-mixed-24.mmdb' );
+
+    is(
+        exception { $reader->iterate_search_tree },
+        undef,
+        'no exception from iterate_search_tree when callbacks are not provided'
     );
 }
 

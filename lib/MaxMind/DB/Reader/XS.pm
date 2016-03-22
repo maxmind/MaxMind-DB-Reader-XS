@@ -10,7 +10,7 @@ use 5.010000;
 
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata;
-use MaxMind::DB::Reader 1.000000;
+use MaxMind::DB::Reader 1.000012;
 use MaxMind::DB::Types qw( Int );
 
 use Moo;
@@ -50,16 +50,15 @@ sub _data_for_address {
     return $self->__data_for_address( $self->_mmdb(), @_ );
 }
 
-sub _read_node {
-    my $self = shift;
+sub iterate_search_tree {
+    my $self          = shift;
+    my $data_callback = shift;
+    my $node_callback = shift;
 
-    return $self->__read_node( $self->_mmdb(), @_ );
-}
-
-sub _get_entry_data {
-    my $self = shift;
-
-    return $self->__get_entry_data( $self->_mmdb(), @_ );
+    return $self->_iterate_search_tree(
+        $self->_mmdb, $data_callback,
+        $node_callback
+    );
 }
 
 sub _build_mmdb {

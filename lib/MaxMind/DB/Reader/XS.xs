@@ -19,6 +19,13 @@ extern "C" {
 }
 #endif
 
+static void iterate_record_entry(MMDB_s *mmdb, SV *data_callback,
+                                 SV *node_callback, uint32_t node_num,
+                                 mmdb_uint128_t ipnum, int depth,
+                                 int max_depth, uint64_t record,
+                                 uint8_t record_type,
+                                 MMDB_entry_s *record_entry);
+
 static int has_highbyte(const U8 * ptr, int size)
 {
     while (--size >= 0) {
@@ -140,6 +147,143 @@ static SV *decode_and_free_entry_data_list(
     return sv;
 }
 
+
+static void call_node_callback(SV *node_callback, uint32_t node_num,
+                               MMDB_search_node_s *node)
+{
+    if (!SvOK(node_callback)) {
+        // nothing to do
+        return;
+    }
+
+    dSP;
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 3);
+    mPUSHu(node_num);
+    mPUSHs(newSVu64(node->left_record));
+    mPUSHs(newSVu64(node->right_record));
+    PUTBACK;
+
+    call_sv(node_callback, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return;
+}
+
+static void call_data_callback(MMDB_s *mmdb, SV *data_callback,
+                               mmdb_uint128_t ipnum, int depth,
+                               MMDB_entry_s *record_entry)
+{
+
+    if (!SvOK(data_callback)) {
+        // nothing to do
+        return;
+    }
+
+    MMDB_entry_data_list_s *entry_data_list;
+    int status = MMDB_get_entry_data_list(record_entry, &entry_data_list);
+    if (MMDB_SUCCESS != status) {
+        const char *error = MMDB_strerror(status);
+        MMDB_free_entry_data_list(entry_data_list);
+        croak(
+            "MaxMind::DB::Reader::XS - Entry data error looking at offset %i: %s",
+            record_entry->offset, error
+            );
+    }
+    SV *decoded_entry = decode_and_free_entry_data_list(entry_data_list);
+
+    dSP;
+
+    ENTER;
+    SAVETMPS;
+
+    PUSHMARK(SP);
+    EXTEND(SP, 3);
+    mPUSHs(newSVu128(ipnum));
+    mPUSHi(depth);
+    mPUSHs(decoded_entry);
+    PUTBACK;
+
+    call_sv(data_callback, G_VOID);
+
+    SPAGAIN;
+    PUTBACK;
+    FREETMPS;
+    LEAVE;
+
+    return;
+}
+
+static void __iterate_search_tree(MMDB_s *mmdb, SV *data_callback,
+                                  SV *node_callback, uint32_t node_num,
+                                  mmdb_uint128_t ipnum,
+                                  int depth,
+                                  int max_depth)
+{
+
+    MMDB_search_node_s node;
+    int status = MMDB_read_node(mmdb, node_num, &node);
+    if (MMDB_SUCCESS != status) {
+        const char *error = MMDB_strerror(status);
+        croak(
+            "MaxMind::DB::Reader::XS - Error reading node: %s",
+            error
+            );
+    }
+
+    call_node_callback(node_callback, node_num, &node);
+
+    iterate_record_entry(mmdb, data_callback, node_callback, node_num, ipnum,
+                         depth, max_depth, node.left_record,
+                         node.left_record_type,
+                         &node.left_record_entry);
+
+    ipnum |= ((mmdb_uint128_t)1) << ( max_depth - depth );
+
+    iterate_record_entry(mmdb, data_callback, node_callback, node_num, ipnum,
+                         depth, max_depth, node.right_record,
+                         node.right_record_type,
+                         &node.right_record_entry);
+}
+
+static void iterate_record_entry(MMDB_s *mmdb, SV *data_callback,
+                                 SV *node_callback, uint32_t node_num,
+                                 mmdb_uint128_t ipnum, int depth,
+                                 int max_depth, uint64_t record,
+                                 uint8_t record_type,
+                                 MMDB_entry_s *record_entry)
+{
+
+    switch (record_type) {
+    case MMDB_RECORD_TYPE_INVALID:
+        croak(
+            "MaxMind::DB::Reader::XS - Invalid record when reading node"
+            );
+    case MMDB_RECORD_TYPE_SEARCH_NODE:
+        __iterate_search_tree(mmdb, data_callback, node_callback, record,
+                              ipnum, depth + 1, max_depth);
+        return;
+    case  MMDB_RECORD_TYPE_EMPTY:
+        // We ignore empty branches of the search tree
+        return;
+    case MMDB_RECORD_TYPE_DATA:
+        call_data_callback(mmdb, data_callback, ipnum, depth,
+                           record_entry);
+        return;
+    default:
+        croak("MaxMind::DB::Reader::XS - Unknown record type: %u",
+              record_type);
+    }
+}
+
 /* *INDENT-OFF* */
 
 MODULE = MaxMind::DB::Reader::XS    PACKAGE = MaxMind::DB::Reader::XS
@@ -246,30 +390,23 @@ __data_for_address(self, mmdb, ip_address)
     OUTPUT:
         RETVAL
 
-SV *
-__get_entry_data(self, mmdb, offset)
+void
+_iterate_search_tree(self, mmdb, data_callback, node_callback)
         MMDB_s *mmdb
-        U32 offset
+        SV *data_callback;
+        SV *node_callback;
     PREINIT:
-        MMDB_entry_s entry;
-        int status;
-        MMDB_entry_data_list_s *entry_data_list;
+        uint32_t node_num;
+        int depth;
+        int max_depth;
     CODE:
-        entry.mmdb = mmdb;
-        entry.offset = offset - mmdb->metadata.node_count;
+        node_num = 0;
+        depth = 1;
+        max_depth = mmdb->metadata.ip_version == 6 ? 128 : 32;
+        mmdb_uint128_t ipnum = 0;
 
-        status = MMDB_get_entry_data_list(&entry, &entry_data_list);
-        if (MMDB_SUCCESS != status) {
-            const char *error = MMDB_strerror(status);
-            MMDB_free_entry_data_list(entry_data_list);
-            croak(
-                "MaxMind::DB::Reader::XS - Entry data error looking at offset %i: %s",
-                entry.offset, error
-                );
-        }
-        RETVAL = decode_and_free_entry_data_list(entry_data_list);
-    OUTPUT:
-        RETVAL
+        __iterate_search_tree(mmdb, data_callback, node_callback, node_num,
+            ipnum, depth, max_depth);
 
 void
 __read_node(self, mmdb, node_number)
