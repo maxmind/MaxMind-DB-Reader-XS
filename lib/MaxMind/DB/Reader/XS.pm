@@ -9,7 +9,7 @@ our $VERSION = '1.000003';
 use 5.010000;
 
 use Math::Int128 qw( uint128 );
-use MaxMind::DB::Metadata;
+use MaxMind::DB::Metadata 0.040001;
 use MaxMind::DB::Reader 1.000012;
 use MaxMind::DB::Types qw( Int );
 

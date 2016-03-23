@@ -1,6 +1,6 @@
 requires "Math::Int128" => "0";
-requires "MaxMind::DB::Metadata" => "0";
-requires "MaxMind::DB::Reader" => "1.000000";
+requires "MaxMind::DB::Metadata" => "0.040001";
+requires "MaxMind::DB::Reader" => "1.000012";
 requires "MaxMind::DB::Reader::Role::HasMetadata" => "0";
 requires "MaxMind::DB::Reader::Role::Reader" => "0";
 requires "MaxMind::DB::Types" => "0";
@@ -38,7 +38,7 @@ on 'test' => sub {
 
 on 'configure' => sub {
   requires "Module::Build" => "0.28";
-  requires "perl" => "5.008002";
+  requires "perl" => "5.008";
 };
 
 on 'develop' => sub {
