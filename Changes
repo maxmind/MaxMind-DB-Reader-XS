@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000003 2016-03-23
+
 - iterate_search_tree() now works with libmaxminddb 1.2.0+. GitHub #12.
 
 

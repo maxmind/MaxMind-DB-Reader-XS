@@ -4,7 +4,7 @@ MaxMind::DB::Reader::XS - Fast XS implementation of MaxMind DB reader
 
 # VERSION
 
-version 1.000002
+version 1.000003
 
 # SYNOPSIS
 
@@ -42,18 +42,18 @@ Please report all issues with this code using the GitHub issue tracker at
 
 # AUTHORS
 
-- Boris Zentner <bzentner@maxmind.com>
-- Dave Rolsky <drolsky@maxmind.com>
-- Ran Eilam <reilam@maxmind.com>
+- Boris Zentner &lt;bzentner@maxmind.com>
+- Dave Rolsky &lt;drolsky@maxmind.com>
+- Ran Eilam &lt;reilam@maxmind.com>
 
 # CONTRIBUTORS
 
-- Greg Oschwald <goschwald@maxmind.com>
-- Olaf Alders <oalders@maxmind.com>
+- Greg Oschwald &lt;goschwald@maxmind.com>
+- Olaf Alders &lt;oalders@maxmind.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2016 by MaxMind, Inc..
+This software is Copyright (c) 2016 by MaxMind, Inc.
 
 This is free software, licensed under:
 
