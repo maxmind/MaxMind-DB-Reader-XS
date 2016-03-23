@@ -92,6 +92,20 @@ EOF
         exit 1;
     }
 
+    unless (
+        $ac->check_member(
+            'MMDB_search_node_s.right_record_type',
+            { prologue => '#include <maxminddb.h>' }
+        )
+        ) {
+        warn <<'EOF';
+  Your version of libmaxminddb does not support record entries in the
+  MMDB_search_node_s struct. Please upgrade to libmaxminddb 1.2.0 or newer.
+
+EOF
+        exit 1;
+    }
+
     unless ( $ac->check_type('unsigned __int128')
         || $ac->check_type('unsigned int __attribute__ ((__mode__ (TI)))') ) {
 
@@ -108,7 +122,7 @@ EOF
 
     if (
         $ac->compute_int(
-            'MMDB_UINT128_IS_BYTE_ARRAY', undef,
+            'MMDB_UINT128_IS_BYTE_ARRAY', q{},
             '#include <maxminddb_config.h>'
         )
         ) {
