@@ -7,11 +7,11 @@ addons:
       - aspell-en
   coverity_scan:
     project:
-      name: "maxmind/MaxMind-DB-Reader-XS"
-      description: "Build submitted via Travis CI"
+      description: Build submitted via Travis CI
+      name: maxmind/MaxMind-DB-Reader-XS
     notification_email: dev-ci@maxmind.com
-    build_command_prepend: "perl Build.PL; ./Build clean"
-    build_command:   "./Build test"
+    build_command_prepend: perl Build.PL; ./Build clean
+    build_command: ./Build test
     branch_pattern: .*coverity.*
 language: perl
 perl:
@@ -38,7 +38,7 @@ perl:
 matrix:
   allow_failures:
     - perl: blead
-    - perl: blead-thre
+    - perl: blead-thr
   include:
     - env: COVERAGE=1
       perl: '5.24'
@@ -49,7 +49,7 @@ env:
     - LD_LIBRARY_PATH=$HOME/lib:$LD_LIBRARY_PATH
     - LIBRARY_PATH=$HOME/lib
     - C_INCLUDE_PATH=$HOME/include
-    - secure: "FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8="
+    - secure: FXtBg21hDDqhYGgK3dRn8k4WgNN9Fwsv9vhF9nEcHUJKnNrsHz6QayaWeslDPfGS0SMjNVJvi0FhcuX9V8mEH3A9Ra3Hc+xyTcrUgWuzzrH1N4P0Wd1evnHEwwZkkxGRb0zh8AMWlP5UGfgdl/QBd46BuXW9Vv4uxkpf7LUvXu8=
 before_install:
   - git submodule update --init --recursive
   - git clone --recursive git://github.com/maxmind/libmaxminddb
@@ -77,6 +77,8 @@ script:
   - prove -b -j$(test-jobs) $(test-files)
 notifications:
   email:
+    on_failure: always
+    on_success: change
     recipients:
       - dev-ci@maxmind.com
   slack:
