@@ -36,23 +36,59 @@ sub _mb_args {
         include_dirs       => \@includes,
     );
 
-    # This is a funky way of allowing this code to run stand-alone and as a
-    # template to be processes by Dist::Zilla::Plugin::ModuleBuild::Custom
-    my $data = do { local $/; <DATA> };
+    my %module_build_args = (
+  "build_requires" => {
+    "Module::Build" => "0.28"
+  },
+  "configure_requires" => {
+    "Module::Build" => "0.28"
+  },
+  "dist_abstract" => "Fast XS implementation of MaxMind DB reader",
+  "dist_author" => [
+    "Boris Zentner <bzentner\@maxmind.com>",
+    "Dave Rolsky <drolsky\@maxmind.com>",
+    "Ran Eilam <reilam\@maxmind.com>"
+  ],
+  "dist_name" => "MaxMind-DB-Reader-XS",
+  "dist_version" => "1.000004",
+  "license" => "artistic_2",
+  "module_name" => "MaxMind::DB::Reader::XS",
+  "recursive_test_files" => 1,
+  "requires" => {
+    "Math::Int128" => 0,
+    "MaxMind::DB::Metadata" => "0.040001",
+    "MaxMind::DB::Reader" => "1.000012",
+    "MaxMind::DB::Reader::Role::HasMetadata" => 0,
+    "MaxMind::DB::Reader::Role::Reader" => 0,
+    "MaxMind::DB::Types" => 0,
+    "Moo" => 0,
+    "XSLoader" => 0,
+    "namespace::autoclean" => 0,
+    "perl" => "5.010000",
+    "strict" => 0,
+    "warnings" => 0
+  },
+  "test_requires" => {
+    "ExtUtils::MakeMaker" => 0,
+    "File::Spec" => 0,
+    "Module::Implementation" => 0,
+    "Net::Works::Network" => "0.21",
+    "Path::Class" => "0.27",
+    "Test::Fatal" => 0,
+    "Test::MaxMind::DB::Common::Util" => 0,
+    "Test::More" => "0.96",
+    "Test::Number::Delta" => 0,
+    "Test::Requires" => 0,
+    "autodie" => 0,
+    "lib" => 0,
+    "utf8" => 0
+  }
+);
 
-    if ( $data !~ /^\#/ ) {
-        my $args = eval $data;
-        return ( %{$args}, %extra );
-    }
-    else {
-        return (
-            module_name          => 'MaxMind::DB::Reader::XS',
-            dist_abstract        => 'Whatever',
-            license              => 'perl',
-            recursive_test_files => 1,
-            %extra,
-        );
-    }
+    return (
+        %module_build_args,
+        %extra,
+    );
 }
 
 sub _check_c_prereqs {
@@ -136,6 +172,3 @@ EOF
 EOF
     }
 }
-
-__DATA__
-##{ ( my $args = Data::Dumper::Dumper( $plugin->module_build_args ) ) =~ s/\$VAR\d+ =//; $args ##}
