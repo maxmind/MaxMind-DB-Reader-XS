@@ -1,3 +1,15 @@
+## no critic (NamingConventions::Capitalization)
+package inc::MyModuleBuild;
+
+use strict;
+use warnings;
+use namespace::autoclean;
+
+use Moose;
+
+extends 'Dist::Zilla::Plugin::ModuleBuild';
+
+my $template = <<'EOT';
 use strict;
 use warnings;
 
@@ -36,55 +48,7 @@ sub _mb_args {
         include_dirs       => \@includes,
     );
 
-    my %module_build_args = (
-  "build_requires" => {
-    "Module::Build" => "0.28"
-  },
-  "configure_requires" => {
-    "Module::Build" => "0.28"
-  },
-  "dist_abstract" => "Fast XS implementation of MaxMind DB reader",
-  "dist_author" => [
-    "Boris Zentner <bzentner\@maxmind.com>",
-    "Dave Rolsky <drolsky\@maxmind.com>",
-    "Ran Eilam <reilam\@maxmind.com>"
-  ],
-  "dist_name" => "MaxMind-DB-Reader-XS",
-  "dist_version" => "1.000004",
-  "license" => "artistic_2",
-  "module_name" => "MaxMind::DB::Reader::XS",
-  "recursive_test_files" => 1,
-  "requires" => {
-    "Math::Int128" => 0,
-    "MaxMind::DB::Metadata" => "0.040001",
-    "MaxMind::DB::Reader" => "1.000012",
-    "MaxMind::DB::Reader::Role::HasMetadata" => 0,
-    "MaxMind::DB::Reader::Role::Reader" => 0,
-    "MaxMind::DB::Types" => 0,
-    "Moo" => 0,
-    "XSLoader" => 0,
-    "namespace::autoclean" => 0,
-    "perl" => "5.010000",
-    "strict" => 0,
-    "warnings" => 0
-  },
-  "test_requires" => {
-    "ExtUtils::MakeMaker" => 0,
-    "File::Spec" => 0,
-    "Module::Implementation" => 0,
-    "Net::Works::Network" => "0.21",
-    "Path::Class" => "0.27",
-    "Test::Fatal" => 0,
-    "Test::MaxMind::DB::Common::Util" => 0,
-    "Test::More" => "0.96",
-    "Test::Number::Delta" => 0,
-    "Test::Requires" => 0,
-    "autodie" => 0,
-    "lib" => 0,
-    "utf8" => 0
-  }
-);
-
+    my {{ $module_build_args }}
     return (
         %module_build_args,
         %extra,
@@ -172,3 +136,24 @@ EOF
 EOF
     }
 }
+EOT
+
+sub gather_files {
+    my ($self) = @_;
+
+    require Dist::Zilla::File::InMemory;
+
+    my $file = Dist::Zilla::File::InMemory->new(
+        {
+            name    => 'Build.PL',
+            content => $template,    # template evaluated later
+        }
+    );
+
+    $self->add_file($file);
+    return;
+}
+
+__PACKAGE__->meta()->make_immutable();
+
+1;

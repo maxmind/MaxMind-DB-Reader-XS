@@ -4,7 +4,7 @@ MaxMind::DB::Reader::XS - Fast XS implementation of MaxMind DB reader
 
 # VERSION
 
-version 1.000003
+version 1.000004
 
 # SYNOPSIS
 
@@ -40,16 +40,19 @@ build of the 64 bit binary. For example, if you're installing via `cpanm`:
 Please report all issues with this code using the GitHub issue tracker at
 [https://github.com/maxmind/MaxMind-DB-Reader-XS/issues](https://github.com/maxmind/MaxMind-DB-Reader-XS/issues).
 
+Bugs may be submitted through [https://github.com/maxmind/MaxMind-DB-Reader-XS/issues](https://github.com/maxmind/MaxMind-DB-Reader-XS/issues).
+
 # AUTHORS
 
-- Boris Zentner &lt;bzentner@maxmind.com>
-- Dave Rolsky &lt;drolsky@maxmind.com>
-- Ran Eilam &lt;reilam@maxmind.com>
+- Boris Zentner <bzentner@maxmind.com>
+- Dave Rolsky <drolsky@maxmind.com>
+- Ran Eilam <reilam@maxmind.com>
 
 # CONTRIBUTORS
 
-- Greg Oschwald &lt;goschwald@maxmind.com>
-- Olaf Alders &lt;oalders@maxmind.com>
+- Florian Ragwitz <rafl@debian.org>
+- Greg Oschwald <goschwald@maxmind.com>
+- Olaf Alders <oalders@maxmind.com>
 
 # COPYRIGHT AND LICENSE
 
