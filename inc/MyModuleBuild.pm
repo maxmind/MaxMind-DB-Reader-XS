@@ -16,7 +16,7 @@ use warnings;
 use lib 'inc';
 
 use Config::AutoConf;
-use Getopt::Long;
+use Getopt::Long qw( :config pass_through );
 use Module::Build;
 
 my $mb = Module::Build->new(
