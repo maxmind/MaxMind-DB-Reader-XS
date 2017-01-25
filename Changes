@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000004 2017-01-25
+
 - Command line arguments to Build.PL are now passed through, allowing building
   with option install_base. PR by Mickey. GitHub #18.
 
