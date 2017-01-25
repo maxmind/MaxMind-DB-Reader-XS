@@ -50,13 +50,14 @@ Bugs may be submitted through [https://github.com/maxmind/MaxMind-DB-Reader-XS/i
 
 # CONTRIBUTORS
 
+- Andy Jack <github@veracity.ca>
 - Florian Ragwitz <rafl@debian.org>
 - Greg Oschwald <goschwald@maxmind.com>
 - Olaf Alders <oalders@maxmind.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2016 by MaxMind, Inc.
+This software is Copyright (c) 2013 - 2017 by MaxMind, Inc.
 
 This is free software, licensed under:
 
