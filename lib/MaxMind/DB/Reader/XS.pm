@@ -116,6 +116,8 @@ __END__
 
 =for Pod::Coverage BUILD DEMOLISH
 
+=for :stopwords PPA
+
 =head1 SYNOPSIS
 
     my $reader = MaxMind::DB::Reader->new( file => 'path/to/database.mmdb' );
@@ -144,6 +146,23 @@ If you're running into install errors under Mac OS X, you may need to force a
 build of the 64 bit binary. For example, if you're installing via C<cpanm>:
 
     ARCHFLAGS="-arch x86_64" cpanm MaxMind::DB::Reader::XS
+
+=head1 UBUNTU SUPPORT
+
+The version of libmaxminddb that is available by default with Ubuntu may be
+too old for this level of MaxMind::DB::Reader::XS.  However, we do maintain a
+Launchpad PPA for all supported levels of Ubuntu.
+
+    https://launchpad.net/~maxmind/+archive/ubuntu/ppa
+
+Please visit the PPA page for more information, or, to configure your system,
+run as root:
+
+    # apt-add-repository ppa:maxmind/ppa
+    # apt-get update
+
+The PPA is now configured, and you may install (or upgrade) the libmaxminddb
+library via the usual apt commands.
 
 =head1 SUPPORT
 
