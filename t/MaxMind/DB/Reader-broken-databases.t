@@ -72,7 +72,9 @@ use Path::Class 0.27 qw( tempdir );
             $expect
                 = qr/Error opening database file "\Q$file\E": The MaxMind DB file contains invalid metadata .+/;
         }
-        else {
+        elsif (
+            version->parse($libmaxminddb_version) >= version->parse('1.1.2') )
+        {
             $expect
                 = qr/Error opening database file "\Q$file\E": The lookup path does not match the data .+/;
         }
