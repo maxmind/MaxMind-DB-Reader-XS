@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000005 2018-04-12
+
 - Fixed tests to work with recent `libmaxminddb` releases. PR by
   Hidenori Sugiyama. GitHub #22.
 

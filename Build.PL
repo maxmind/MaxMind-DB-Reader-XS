@@ -81,7 +81,8 @@ sub _mb_args {
     "Test::Requires" => 0,
     "autodie" => 0,
     "lib" => 0,
-    "utf8" => 0
+    "utf8" => 0,
+    "version" => 0
   }
 );
 
