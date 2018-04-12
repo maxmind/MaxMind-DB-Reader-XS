@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '1.000005';
+our $VERSION = '1.000006';
 
 use 5.010000;
 
