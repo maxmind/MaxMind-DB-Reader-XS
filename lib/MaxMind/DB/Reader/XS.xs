@@ -354,11 +354,9 @@ __data_for_address(self, mmdb, ip_address)
     CODE:
         result = MMDB_lookup_string(mmdb, ip_address, &gai_status, &mmdb_status);
         if (0 != gai_status) {
-            const char *gai_error = gai_strerror(gai_status);
             croak(
-                "MaxMind::DB::Reader::XS - Lookup on invalid IP address \"%s\": %s",
-                ip_address, gai_error
-                );
+                "The IP address you provided (%s) is not a valid IPv4 or IPv6 address",
+                ip_address);
         }
 
         if (MMDB_SUCCESS != mmdb_status) {

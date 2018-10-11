@@ -10,19 +10,24 @@ use 5.010000;
 
 use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata 0.040001;
-use MaxMind::DB::Reader 1.000012;
-use MaxMind::DB::Types qw( Int );
+use MaxMind::DB::Types qw( Int Str );
 
 use Moo;
 
-with 'MaxMind::DB::Reader::Role::Reader',
-    'MaxMind::DB::Reader::Role::HasMetadata';
+with 'MaxMind::DB::Reader::Role::HasMetadata';
 
 use XSLoader;
 
 ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
 XSLoader::load( __PACKAGE__, $VERSION );
 ## use critic
+
+has file => (
+    is       => 'ro',
+    isa      => Str,
+    coerce   => sub { "$_[0]" },
+    required => 1,
+);
 
 has _mmdb => (
     is        => 'ro',
@@ -44,10 +49,14 @@ has _flags => (
 sub BUILD { $_[0]->_mmdb }
 
 ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
-sub _data_for_address {
+sub record_for_address {
     my $self = shift;
+    my $addr = shift;
 
-    return $self->__data_for_address( $self->_mmdb(), @_ );
+    die 'You must provide an IP address to look up'
+        unless defined $addr && length $addr;
+
+    return $self->__data_for_address( $self->_mmdb(), $addr );
 }
 
 sub iterate_search_tree {
@@ -72,7 +81,13 @@ sub _build_metadata {
 
     my $raw = $self->_raw_metadata( $self->_mmdb() );
 
-    return MaxMind::DB::Metadata->new($raw);
+    my $metadata = MaxMind::DB::Metadata->new($raw);
+
+    return $metadata unless $ENV{MAXMIND_DB_READER_DEBUG};
+
+    $metadata->debug_dump;
+
+    return $metadata;
 }
 
 sub _decode_bigint {
