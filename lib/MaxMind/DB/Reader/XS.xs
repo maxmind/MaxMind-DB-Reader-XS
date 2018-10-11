@@ -26,28 +26,6 @@ static void iterate_record_entry(MMDB_s *mmdb, SV *data_callback,
                                  uint8_t record_type,
                                  MMDB_entry_s *record_entry);
 
-static int has_highbyte(const U8 * ptr, int size)
-{
-    while (--size >= 0) {
-        if (*ptr++ > 127) {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-static SV *decode_utf8_string(MMDB_entry_data_s *entry_data)
-{
-    int size = entry_data->data_size;
-    char *data = (char *)entry_data->utf8_string;
-    SV *sv = newSVpvn(data, size);
-    if (has_highbyte((const U8 *)data, size)) {
-        SvUTF8_on(sv);
-    }
-    return sv;
-}
-
 static SV *decode_bytes(MMDB_entry_data_s *entry_data)
 {
     return newSVpvn((char *)entry_data->bytes, entry_data->data_size);
@@ -58,7 +36,7 @@ static SV *decode_simple_value(MMDB_entry_data_list_s **current)
     MMDB_entry_data_s entry_data = (*current)->entry_data;
     switch (entry_data.type) {
     case MMDB_DATA_TYPE_UTF8_STRING:
-        return decode_utf8_string(&entry_data);
+        return newSVpvn_utf8((char *)entry_data.utf8_string, entry_data.data_size, 1);
     case MMDB_DATA_TYPE_DOUBLE:
         return newSVnv(entry_data.double_value);
     case MMDB_DATA_TYPE_BYTES:
