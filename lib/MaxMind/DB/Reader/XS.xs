@@ -79,6 +79,7 @@ static SV *decode_array(MMDB_entry_data_list_s **current)
     int size = (*current)->entry_data.data_size;
 
     AV *av = newAV();
+    av_extend(av, size);
     for (uint i = 0; i < size; i++) {
         *current = (*current)->next;
         av_push(av, decode_entry_data_list(current));
