@@ -331,6 +331,10 @@ __data_for_address(self, mmdb, ip_address)
         MMDB_lookup_result_s result;
         MMDB_entry_data_list_s *entry_data_list;
     CODE:
+        if (!ip_address || *ip_address == '\0') {
+            croak("You must provide an IP address to look up");
+        }
+
         result = MMDB_lookup_string(mmdb, ip_address, &gai_status, &mmdb_status);
         if (0 != gai_status) {
             croak(

@@ -50,13 +50,7 @@ sub BUILD { $_[0]->_mmdb }
 
 ## no critic (Subroutines::ProhibitUnusedPrivateSubroutines)
 sub record_for_address {
-    my $self = shift;
-    my $addr = shift;
-
-    die 'You must provide an IP address to look up'
-        unless defined $addr && length $addr;
-
-    return $self->__data_for_address( $self->_mmdb(), $addr );
+    return $_[0]->__data_for_address( $_[0]->_mmdb, $_[1] );
 }
 
 sub iterate_search_tree {
