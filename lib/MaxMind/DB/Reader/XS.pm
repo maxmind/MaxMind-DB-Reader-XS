@@ -66,13 +66,13 @@ sub iterate_search_tree {
 sub _build_mmdb {
     my $self = shift;
 
-    return $self->_open_mmdb( $self->file(), $self->_flags() );
+    return $self->_open_mmdb( $self->file, $self->_flags );
 }
 
 sub _build_metadata {
     my $self = shift;
 
-    my $raw = $self->_raw_metadata( $self->_mmdb() );
+    my $raw = $self->_raw_metadata( $self->_mmdb );
 
     my $metadata = MaxMind::DB::Metadata->new($raw);
 
@@ -88,13 +88,13 @@ sub _build_metadata {
 sub DEMOLISH {
     my $self = shift;
 
-    $self->_close_mmdb( $self->_mmdb() )
-        if $self->_has_mmdb();
+    $self->_close_mmdb( $self->_mmdb )
+        if $self->_has_mmdb;
 
     return;
 }
 
-__PACKAGE__->meta()->make_immutable();
+__PACKAGE__->meta->make_immutable;
 
 1;
 
