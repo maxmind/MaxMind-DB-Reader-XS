@@ -8,7 +8,6 @@ our $VERSION = '1.000006';
 
 use 5.010000;
 
-use Math::Int128 qw( uint128 );
 use MaxMind::DB::Metadata 0.040001;
 use MaxMind::DB::Types qw( Int Str );
 
@@ -84,27 +83,7 @@ sub _build_metadata {
     return $metadata;
 }
 
-sub _decode_bigint {
-    my $buffer = shift;
-
-    my $int = uint128(0);
-
-    my @unpacked = unpack( 'NNNN', _zero_pad_left( $buffer, 16 ) );
-    for my $piece (@unpacked) {
-        $int = ( $int << 32 ) | $piece;
-    }
-
-    return $int;
-}
 ## use critic
-
-# Copied from MaxMind::DB::Reader::Decoder
-sub _zero_pad_left {
-    my $content        = shift;
-    my $desired_length = shift;
-
-    return ( "\x00" x ( $desired_length - length($content) ) ) . $content;
-}
 
 sub DEMOLISH {
     my $self = shift;
