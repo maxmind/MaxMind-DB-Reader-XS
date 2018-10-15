@@ -93,6 +93,7 @@ static SV *decode_map(MMDB_entry_data_list_s **current)
     int size = (*current)->entry_data.data_size;
 
     HV *hv = newHV();
+    hv_ksplit(hv, size);
     for (uint i = 0; i < size; i++) {
         *current = (*current)->next;
         char *key = (char *)(*current)->entry_data.utf8_string;
