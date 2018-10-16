@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000006 2018-10-16
+
 - The performance of record_for_address has been improved.
 - Strings retuned by record_for_address will now always have the
   utf8 flag on. Previously, the flag would not be set if the string
