@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Explicitly depend on Math::Int64 and Math::Int128. Reported by
+  pkdetlefsen. GitHub #27.
+
+
 1.000006 2018-10-16
 
 - The performance of record_for_address has been improved.

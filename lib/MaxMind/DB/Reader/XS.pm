@@ -8,6 +8,10 @@ our $VERSION = '1.000007';
 
 use 5.010000;
 
+# We depend on these in the C/XS code.
+use Math::Int64  ();
+use Math::Int128 ();
+
 use MaxMind::DB::Metadata 0.040001;
 use MaxMind::DB::Types qw( Int Str );
 
