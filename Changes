@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.000007 2018-12-15
+
 - Explicitly depend on Math::Int64 and Math::Int128. Reported by
   pkdetlefsen. GitHub #27.
 
