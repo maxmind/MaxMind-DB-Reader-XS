@@ -28,7 +28,7 @@ my $reader
     ok( $mmdb_record, 'found record for ::1.1.1.0' );
 
     is(
-        $mmdb_record->{utf8_string}, 'unicode! ☯ - ♫',
+        $mmdb_record->{utf8_string}, "unicode! \x{262f} - \x{266b}",
         'decoded utf8_string has expected value'
     );
     delta_ok(
