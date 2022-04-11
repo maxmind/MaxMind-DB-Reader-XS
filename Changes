@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+- Release with updated ppport.h. No other changes.
+
 1.000008 2019-06-18
 
 - Add deprecation notice
