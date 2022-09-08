@@ -7,6 +7,7 @@ extern "C" {
 #include "perl.h"
 #include "XSUB.h"
 #define NEED_newRV_noinc
+#define NEED_sv_setpvf_mg_nocontext_GLOBAL
 #include "ppport.h"
 #include <sys/socket.h>
 #include "maxminddb.h"
