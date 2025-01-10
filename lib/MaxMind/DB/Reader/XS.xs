@@ -170,7 +170,6 @@ static void call_data_callback(MMDB_s *mmdb, SV *data_callback,
     int status = MMDB_get_entry_data_list(record_entry, &entry_data_list);
     if (MMDB_SUCCESS != status) {
         const char *error = MMDB_strerror(status);
-        MMDB_free_entry_data_list(entry_data_list);
         croak(
             "MaxMind::DB::Reader::XS - Entry data error looking at offset %i: %s",
             record_entry->offset, error
@@ -312,7 +311,6 @@ _raw_metadata(self, mmdb)
         int status = MMDB_get_metadata_as_entry_data_list(mmdb, &entry_data_list);
         if (MMDB_SUCCESS != status) {
             const char *error = MMDB_strerror(status);
-            MMDB_free_entry_data_list(entry_data_list);
             croak(
                 "MaxMind::DB::Reader::XS - Error getting metadata: %s",
                 error
@@ -355,7 +353,6 @@ __data_for_address(self, mmdb, ip_address)
             get_status = MMDB_get_entry_data_list(&result.entry, &entry_data_list);
             if (MMDB_SUCCESS != get_status) {
                 const char *get_error = MMDB_strerror(get_status);
-                MMDB_free_entry_data_list(entry_data_list);
                 croak(
                     "MaxMind::DB::Reader::XS - Entry data error looking up \"%s\": %s",
                     ip_address, get_error
